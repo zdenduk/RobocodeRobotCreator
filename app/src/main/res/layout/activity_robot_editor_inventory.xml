@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/fullscreenBackgroundColor"
+    android:theme="@style/ThemeOverlay.RobocodeRobotCreator.FullscreenContainer"
+    tools:context=".RobotEditorInventoryActivity">
+
+    <Button
+        android:id="@+id/new_robot"
+        style="@style/Regular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/_18"
+        android:padding="@dimen/_32"
+        android:text="@string/create_new"
+        android:textSize="@dimen/robot_editor_screen_button_text_size"/>
+
+    <TextView
+        android:layout_marginStart="@dimen/_18"
+        android:id="@+id/my_robots"
+        style="@style/Regular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/new_robot"
+        android:text="@string/my_robots"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_32" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/roboteditorview"
+        android:layout_width="match_parent"
+        android:layout_height="622dp"
+        android:layout_below="@id/my_robots"
+        android:orientation="vertical" />
+</RelativeLayout>

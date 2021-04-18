@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/fullscreenBackgroundColor"
+    android:theme="@style/ThemeOverlay.RobocodeRobotCreator.FullscreenContainer"
+    tools:context=".RobotEditorActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/robot_name_edit"
+            style="@style/Regular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_18"
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Name"
+            android:textColor="@color/white"
+            android:textSize="@dimen/robot_editor_robot_name_size" />
+
+        <Button
+            android:id="@+id/save_robot"
+            style="@style/Regular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_18"
+            android:onClick="saveRobot"
+            android:padding="12dp"
+            android:text="@string/save_robot"
+            android:textSize="@dimen/robot_editor_screen_button_text_size" />
+    </LinearLayout>
+
+    <AbsoluteLayout
+        android:id="@+id/edit_canvas"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100sp">
+
+
+    </AbsoluteLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/events_show_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="EVENTS"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/movement_show_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MOVEMENT"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/radar_show_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RADAR"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/weapons_show_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="WEAPONS"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

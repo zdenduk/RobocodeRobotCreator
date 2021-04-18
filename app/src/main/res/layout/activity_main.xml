@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/fullscreenBackgroundColor"
+    android:theme="@style/ThemeOverlay.RobocodeRobotCreator.FullscreenContainer"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/appname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="75sp"
+        android:gravity="center_horizontal"
+        android:keepScreenOn="true"
+        android:text="@string/app_name"
+        android:textColor="?attr/fullscreenTextColor"
+        android:textSize="@dimen/_32"
+        style="@style/Regular"/>
+
+    <Button
+        android:id="@+id/roboteditor"
+        style="@style/Regular"
+        android:layout_width="230dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/appname"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="75sp"
+        android:background="@color/black"
+        android:onClick="goToRobotEditorInventory"
+        android:text="@string/robot_editor"
+        android:textColor="@color/white"
+        android:textSize="@dimen/loading_screen_button_text_size" />
+
+    <Button
+        android:id="@+id/matchhistory"
+        android:layout_width="230dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/roboteditor"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50sp"
+        android:background="@color/black"
+        android:text="@string/match_history"
+        android:textColor="@color/white"
+        android:textSize="@dimen/loading_screen_button_text_size"
+        style="@style/Regular"/>
+
+    <Button
+        android:id="@+id/dummyid"
+        android:layout_width="230dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/matchhistory"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50sp"
+        android:background="@color/black"
+        android:text="@string/match_history"
+        android:textColor="@color/white"
+        android:textSize="@dimen/loading_screen_button_text_size"
+        style="@style/Regular"/>
+
+</RelativeLayout>

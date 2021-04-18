@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <item
+        android:id="@+id/else_item"
+        android:title="Else" />
+
+    <item
+        android:id="@+id/if_item"
+        android:title="If" />
+
+    <item
+        android:id="@+id/onhitwall_item"
+        android:title="OnHitWall" />
+
+    <item
+        android:id="@+id/onscannedrobot_item"
+        android:title="OnScannedRobot" />
+
+    <item
+        android:id="@+id/run_item"
+        android:title="Run" />
+
+    <item
+        android:id="@+id/while_item"
+        android:title="While" />
+</menu>

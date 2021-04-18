@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Robocode Robot Creator</string>
+    <string name="title_activity_main">FullscreenActivity</string>
+    <string name="robot_editor">Robot editor</string>
+    <string name="match_history">Match history</string>
+    <string name="create_new">Create new</string>
+    <string name="my_robots">My robots</string>
+    <string name="title_activity_robot_editor">RobotEditorActivity</string>
+    <string name="save_robot">save</string>
+
+
+</resources>

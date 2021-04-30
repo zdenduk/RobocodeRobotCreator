@@ -11,6 +11,7 @@
         android:id="@+id/new_robot"
         style="@style/Regular"
         android:layout_width="wrap_content"
+        android:onClick="createNewRobot"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_margin="@dimen/_18"

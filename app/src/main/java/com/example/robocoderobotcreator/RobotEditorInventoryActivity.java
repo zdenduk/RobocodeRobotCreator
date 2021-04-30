@@ -2,6 +2,7 @@ package com.example.robocoderobotcreator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -105,6 +106,12 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
 
         Intent intent = new Intent(this, RobotEditorActivity.class);
         intent.putExtra("robot", position);
+        startActivity(intent);
+    }
+
+    public void createNewRobot(View view) {
+        Intent intent = new Intent(this, RobotEditorActivity.class);
+        intent.putExtra("robot", -1);
         startActivity(intent);
     }
 }

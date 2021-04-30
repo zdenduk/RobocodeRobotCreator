@@ -22,16 +22,19 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
     public BasicBlock(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;
+        setColor(context);
     }
 
     public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {
         super(context, attrs);
         this.blockRef = blockRef;
+        setColor(context);
     }
 
     public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, Block blockRef) {
         super(context, attrs, defStyleAttr);
         this.blockRef = blockRef;
+        setColor(context);
     }
 
 

@@ -1,18 +1,7 @@
 package com.example.robocoderobotcreator.model;
 
-public class Translator {
-
-    private static Translator INSTANCE = null;
-
-    private Translator() {
-    }
-
-    public static Translator getInstance() {
-        if (INSTANCE == null)
-            INSTANCE = new Translator();
-
-        return INSTANCE;
-    }
+public enum Translator {
+    INSTANCE;
 
     public String translateBlock(Block block) {
         StringBuilder sb = new StringBuilder();

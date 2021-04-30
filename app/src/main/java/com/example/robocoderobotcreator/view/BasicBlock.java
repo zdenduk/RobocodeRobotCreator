@@ -23,6 +23,7 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         super(context);
         this.blockRef = blockRef;
         setColor(context);
+        setText(context);
     }
 
     public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {

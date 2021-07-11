@@ -3,6 +3,7 @@ package com.example.robocoderobotcreator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.PopupMenu;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.robocoderobotcreator.model.Block;
 import com.example.robocoderobotcreator.model.RobotBlueprint;
 import com.example.robocoderobotcreator.model.events.ElseBlock;
 import com.example.robocoderobotcreator.model.events.IfBlock;
@@ -19,16 +21,24 @@ import com.example.robocoderobotcreator.model.events.OnHitWall;
 import com.example.robocoderobotcreator.model.events.OnScannedRobot;
 import com.example.robocoderobotcreator.model.events.Run;
 import com.example.robocoderobotcreator.model.events.WhileBlock;
+import com.example.robocoderobotcreator.model.movement.Ahead;
+import com.example.robocoderobotcreator.model.movement.Back;
 import com.example.robocoderobotcreator.model.weapons.Fire;
 import com.example.robocoderobotcreator.model.weapons.TurnGunLeft;
 import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 import com.example.robocoderobotcreator.support.RobotDataManager;
 import com.example.robocoderobotcreator.view.BasicBlock;
+import com.example.robocoderobotcreator.view.DragController;
+import com.example.robocoderobotcreator.view.DragLayer;
+import com.example.robocoderobotcreator.view.DropSpot;
 
-public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, View.OnLongClickListener, View.OnClickListener, View.OnTouchListener {
 
     RobotBlueprint rb;
-    AbsoluteLayout canvas;
+
+    private DragController mDragController;   // Object that sends out drag-drop events while a view is being moved.
+    private DragLayer mDragLayer;             // The ViewGroup that supports drag-drop.
+    // Otherwise, any touch event starts a drag.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +83,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
             actionBar.hide();
         }
 
-        canvas = findViewById(R.id.edit_canvas);
+        mDragController = new DragController(this);
+        setupViews();
 
         Intent intent = getIntent();
         int pos = intent.getIntExtra("position", -1);
@@ -92,34 +103,95 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.else_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new ElseBlock()));
+                createBlock(new ElseBlock());
                 return true;
             case R.id.if_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new IfBlock()));
+                createBlock(new IfBlock());
                 return true;
             case R.id.onhitwall_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new OnHitWall()));
+                createBlock(new OnHitWall());
                 return true;
             case R.id.onscannedrobot_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new OnScannedRobot()));
+                createBlock(new OnScannedRobot());
                 return true;
             case R.id.run_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new Run()));
+                createBlock(new Run());
                 return true;
             case R.id.while_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new WhileBlock()));
+                createBlock(new WhileBlock());
                 return true;
             case R.id.fire_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new Fire()));
+                createBlock(new Fire());
                 return true;
             case R.id.turngunleft_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new TurnGunLeft()));
+                createBlock(new TurnGunLeft());
                 return true;
             case R.id.turngunright_item:
-                canvas.addView(new BasicBlock(getApplicationContext(), new TurnGunRight()));
+                createBlock(new TurnGunRight());
+                return true;
+            case R.id.ahead_item:
+                createBlock(new Ahead());
+                return true;
+            case R.id.back_item:
+                createBlock(new Back());
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void createBlock(Block param) {
+        BasicBlock bb = new BasicBlock(getApplicationContext(), param);
+        bb.setOnClickListener(this);
+        bb.setOnLongClickListener(this);
+        bb.setOnTouchListener(this);
+        DropSpot dp = new DropSpot(getApplicationContext());
+
+        dp.addView(bb);
+        mDragLayer.addView(dp);
+        dp.setup(mDragLayer, mDragController, R.color.background_color);
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
+    }
+
+    public boolean onTouch(View v, MotionEvent ev) {
+        boolean handledHere = false;
+
+        final int action = ev.getAction();
+
+        // In the situation where a long click is not needed to initiate a drag, simply start on the down event.
+        if (action == MotionEvent.ACTION_DOWN) {
+            handledHere = startDrag(v);
+            if (handledHere) v.performClick();
+        }
+
+        return handledHere;
+    }
+
+    public boolean startDrag(View v) {
+        // Let the DragController initiate a drag-drop sequence.
+        // I use the dragInfo to pass along the object being dragged.
+        // I'm not sure how the Launcher designers do this.
+        Object dragInfo = v;
+        mDragController.startDrag(v, mDragLayer, dragInfo, DragController.DRAG_ACTION_MOVE);
+        return true;
+    }
+
+    private void setupViews() {
+        DragController dragController = mDragController;
+
+        mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
+        mDragLayer.setDragController(dragController);
+        dragController.addDropTarget(mDragLayer);
+
+        //mDragController = dragController;
     }
 }

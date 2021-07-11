@@ -36,14 +36,14 @@
             android:textSize="@dimen/robot_editor_screen_button_text_size" />
     </LinearLayout>
 
-    <AbsoluteLayout
-        android:id="@+id/edit_canvas"
+    <com.example.robocoderobotcreator.view.DragLayer
+        android:id="@+id/drag_layer"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_marginTop="100sp">
 
 
-    </AbsoluteLayout>
+    </com.example.robocoderobotcreator.view.DragLayer>
 
     <LinearLayout
         android:layout_width="fill_parent"

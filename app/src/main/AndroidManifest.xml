@@ -3,7 +3,7 @@
     package="com.example.robocoderobotcreator">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+
     <uses-feature android:name="android.hardware.type.watch" />
 
     <application
@@ -13,10 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RobocodeRobotCreator">
-
+        
         <activity
             android:name=".RobotEditorActivity"
-            android:label="@string/title_activity_robot_editor" />
+            android:label="@string/title_activity_robot_editor"></activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -30,7 +30,7 @@
         <activity
             android:name=".RobotEditorInventoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/Theme.RobocodeRobotCreator.Fullscreen" />
+            android:theme="@style/Theme.RobocodeRobotCreator.Fullscreen"></activity>
     </application>
 
 </manifest>

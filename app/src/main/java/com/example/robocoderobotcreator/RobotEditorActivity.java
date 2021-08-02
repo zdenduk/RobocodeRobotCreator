@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
@@ -15,6 +18,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -22,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.robocoderobotcreator.model.Block;
 import com.example.robocoderobotcreator.model.RobotBlueprint;
+import com.example.robocoderobotcreator.model.Translator;
 import com.example.robocoderobotcreator.model.events.ElseBlock;
 import com.example.robocoderobotcreator.model.events.IfBlock;
 import com.example.robocoderobotcreator.model.events.OnHitWall;
@@ -36,6 +42,9 @@ import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 import com.example.robocoderobotcreator.support.RobotDataManager;
 import com.example.robocoderobotcreator.view.BasicBlock;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     RobotBlueprint rb;
@@ -43,6 +52,9 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     LinearLayout top_bar;
     LinearLayout bottom_bar;
     int window_height;
+
+    float x = 0;
+    float y = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,10 +112,20 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     public void saveRobot(View view) {
-        EditText robotNameEditText = (EditText) findViewById(R.id.robot_name_edit);
+        EditText robotNameEditText = findViewById(R.id.robot_name_edit);
         rb.setName(robotNameEditText.getText().toString());
-
         RobotDataManager.INSTANCE.writeRobotFileOnInternalStorage(getApplicationContext(), rb);
+    }
+
+    public void showRobotText(View view) {
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.editor_robot_text_popup, null);
+        TextView tv = popupView.findViewById(R.id.robot_text_target);
+        tv.setText(Translator.INSTANCE.translateRobotBlueprint(rb));
+        final PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
     }
 
     @Override
@@ -155,25 +177,22 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         bb.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
+
                 final int action = event.getAction();
+                System.out.println(action);
+
                 switch (action) {
                     case DragEvent.ACTION_DRAG_STARTED:
                         // Determines if this View can accept the dragged data
                         if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
 
-                            bb.setVisibility(View.INVISIBLE);
-
-                            // As an example of what your application might do,
-                            // applies a blue color tint to the View to indicate that it can accept
-                            // data.
-                            //v.setColorFilter(Color.BLUE);
+                            //v.setVisibility(View.INVISIBLE);
 
                             // Invalidate the view to force a redraw in the new tint
                             v.invalidate();
 
                             // returns true to indicate that the View can accept the dragged data.
                             return true;
-
                         }
 
                         // Returns false. During the current drag and drop operation, this View will
@@ -181,44 +200,30 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         return false;
 
                     case DragEvent.ACTION_DRAG_ENTERED:
-
-                        // Applies a green tint to the View. Return true; the return value is ignored.
-
-                        //v.setColorFilter(Color.GREEN);
-
                         // Invalidate the view to force a redraw in the new tint
                         v.invalidate();
 
                         return true;
 
                     case DragEvent.ACTION_DRAG_LOCATION:
-
                         // Ignore the event
                         return true;
 
                     case DragEvent.ACTION_DRAG_EXITED:
-
-                        // Re-sets the color tint to blue. Returns true; the return value is ignored.
-                        //v.setColorFilter(Color.BLUE);
-
-                        // Invalidate the view to force a redraw in the new tint
                         v.invalidate();
-
                         return true;
 
                     case DragEvent.ACTION_DROP:
 
                         // Gets the item containing the dragged data
                         ClipData.Item item = event.getClipData().getItemAt(0);
+                        System.out.println(item);
 
                         // Gets the text data from the item.
                         CharSequence dragData = item.getText();
 
                         // Displays a message containing the dragged data.
                         Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
-
-                        // Turns off any color tints
-                        //v.clearColorFilter();
 
                         // Invalidates the view to force a redraw
                         v.invalidate();
@@ -227,23 +232,24 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         return true;
 
                     case DragEvent.ACTION_DRAG_ENDED:
-                        float x = event.getX();
-                        float y = event.getY();
+                        // Check whether dragged view equals any of the blocks
+                        if (event.getLocalState().equals(v)) {
+                            x = event.getX();
+                            y = event.getY();
 
-                        // detect bounds
-                        if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
-                            bb.setVisibility(View.VISIBLE);
-                            return false;
+                            // Detect bounds
+                            if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
+                                v.setVisibility(View.VISIBLE);
+                                return false;
+                            }
+
+                            // Invalidates the view to force a redraw
+                            v.invalidate();
+
+                            v.setX(x - 64);
+                            v.setY(y - top_bar.getHeight() - 64);
+                            v.setVisibility(View.VISIBLE);
                         }
-
-                        // Invalidates the view to force a redraw
-                        v.invalidate();
-
-                        bb.setX(x - 64);
-                        bb.setY(y - top_bar.getHeight() - 64);
-                        bb.setVisibility(View.VISIBLE);
-
-
                         // Does a getResult(), and displays what happened.
                         if (event.getResult()) {
                             Toast.makeText(v.getContext(), "The drop was handled.", Toast.LENGTH_LONG).show();
@@ -263,20 +269,23 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                 return false;
             }
         });
-        bb.setOnLongClickListener(v -> {
-            ClipData.Item item1 = new ClipData.Item((CharSequence) v.getTag());
+        bb.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ClipData.Item item1 = new ClipData.Item((CharSequence) v.getTag());
 
-            ClipData dragData = new ClipData(
-                    (CharSequence) v.getTag(),
-                    new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
-                    item1);
+                ClipData dragData = new ClipData(
+                        (CharSequence) v.getTag(),
+                        new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
+                        item1);
 
-            v.startDrag(dragData,  // the data to be dragged
-                    new View.DragShadowBuilder(v),  // the drag shadow builder
-                    null,      // no need to use local data
-                    0          // flags (not currently used, set to 0)
-            );
-            return true;
+                v.startDrag(dragData,  // the data to be dragged
+                        new View.DragShadowBuilder(v),  // the drag shadow builder
+                        bb,      // reference to block
+                        0          // flags (not currently used, set to 0)
+                );
+                return true;
+            }
         });
         return bb;
     }

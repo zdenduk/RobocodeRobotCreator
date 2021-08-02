@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.Gravity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,8 +23,16 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
     public BasicBlock(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;
+        initBlockViewParams(context);
+    }
+
+    private void initBlockViewParams(@NonNull Context context) {
         setColor(context);
         setText(context);
+       // setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        //setWidth(128);
+        //setHeight(128);
+        setTextColor(Color.WHITE);
     }
 
     public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {

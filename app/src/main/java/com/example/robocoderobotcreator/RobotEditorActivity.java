@@ -48,13 +48,12 @@ import java.util.List;
 public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     RobotBlueprint rb;
+    EditText robotNameEditText;
+
     FrameLayout canvas;
     LinearLayout top_bar;
     LinearLayout bottom_bar;
     int window_height;
-
-    float x = 0;
-    float y = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +99,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         }
 
         window_height = getResources().getDisplayMetrics().heightPixels;
-
+        robotNameEditText = findViewById(R.id.robot_name_edit);
         canvas = findViewById(R.id.edit_canvas);
         top_bar = findViewById(R.id.top_bar);
         bottom_bar = findViewById(R.id.bottom_bar);
@@ -109,15 +108,16 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         int pos = intent.getIntExtra("position", -1);
 
         //  rb = RobotDataManager.INSTANCE.getRobotData().get(pos);
+        rb = new RobotBlueprint();
     }
 
     public void saveRobot(View view) {
-        EditText robotNameEditText = findViewById(R.id.robot_name_edit);
         rb.setName(robotNameEditText.getText().toString());
         RobotDataManager.INSTANCE.writeRobotFileOnInternalStorage(getApplicationContext(), rb);
     }
 
     public void showRobotText(View view) {
+        rb.setName(robotNameEditText.getText().toString());
         LayoutInflater inflater = (LayoutInflater)
                 getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.editor_robot_text_popup, null);
@@ -186,7 +186,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         // Determines if this View can accept the dragged data
                         if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
 
-                            //v.setVisibility(View.INVISIBLE);
+                            v.setVisibility(View.INVISIBLE);
 
                             // Invalidate the view to force a redraw in the new tint
                             v.invalidate();
@@ -234,8 +234,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     case DragEvent.ACTION_DRAG_ENDED:
                         // Check whether dragged view equals any of the blocks
                         if (event.getLocalState().equals(v)) {
-                            x = event.getX();
-                            y = event.getY();
+                            float x = event.getX();
+                            float y = event.getY();
 
                             // Detect bounds
                             if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
@@ -250,20 +250,11 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                             v.setY(y - top_bar.getHeight() - 64);
                             v.setVisibility(View.VISIBLE);
                         }
-                        // Does a getResult(), and displays what happened.
-                        if (event.getResult()) {
-                            Toast.makeText(v.getContext(), "The drop was handled.", Toast.LENGTH_LONG).show();
-
-                        } else {
-                            Toast.makeText(v.getContext(), "The drop didn't work.", Toast.LENGTH_LONG).show();
-                        }
-
-                        // returns true; the value is ignored.
                         return true;
 
                     // An unknown action type was received.
                     default:
-                        Log.e("DragDrop Example", "Unknown action type received by OnDragListener.");
+                        Log.e("DragDrop", "Unknown action type received by OnDragListener.");
                         break;
                 }
                 return false;

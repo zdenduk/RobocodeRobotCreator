@@ -29,7 +29,7 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
     private void initBlockViewParams(@NonNull Context context) {
         setColor(context);
         setText(context);
-       // setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        // setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         //setWidth(128);
         //setHeight(128);
         setTextColor(Color.WHITE);
@@ -47,6 +47,9 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         setColor(context);
     }
 
+    public Block getBlockRef() {
+        return blockRef;
+    }
 
     private void setColor(Context context) {
         switch (blockRef.getCategory()) {

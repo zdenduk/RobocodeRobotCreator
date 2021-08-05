@@ -4,15 +4,12 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -53,7 +50,10 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     FrameLayout canvas;
     LinearLayout top_bar;
     LinearLayout bottom_bar;
+
     int window_height;
+
+    List<BasicBlock> blockList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +109,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
         //  rb = RobotDataManager.INSTANCE.getRobotData().get(pos);
         rb = new RobotBlueprint();
+        blockList = new ArrayList<>();
     }
 
     public void saveRobot(View view) {
@@ -117,6 +118,30 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     public void showRobotText(View view) {
+        /*RobotBlueprint rb = new RobotBlueprint();
+        Run run = new Run();
+        WhileBlock whileBlock = new WhileBlock();
+        run.getBlocks().add(whileBlock);
+        Ahead ahead1 = new Ahead();
+        ahead1.setParameter("100");
+        TurnGunRight turnGunRight1 = new TurnGunRight();
+        turnGunRight1.setParameter("360");
+        Ahead ahead2 = new Ahead();
+        ahead2.setParameter("100");
+        TurnGunRight turnGunRight2 = new TurnGunRight();
+        turnGunRight2.setParameter("360");
+        whileBlock.getBlocks().add(ahead1);
+        whileBlock.getBlocks().add(turnGunRight1);
+        whileBlock.getBlocks().add(ahead2);
+        whileBlock.getBlocks().add(turnGunRight2);
+        OnScannedRobot onScannedRobot = new OnScannedRobot();
+        Fire fire = new Fire();
+        fire.setParameter("1");
+        onScannedRobot.getBlocks().add(fire);
+        rb.getBlockList().add(run);
+        rb.getBlockList().add(onScannedRobot);*/
+
+
         rb.setName(robotNameEditText.getText().toString());
         LayoutInflater inflater = (LayoutInflater)
                 getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -170,113 +195,126 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     private BasicBlock createBasicBlock(String param, Block type) {
+        // Create BasicBlock
         BasicBlock bb = new BasicBlock(getApplicationContext(), type);
+
+        // Add block reference for collisions checking
+        blockList.add(bb);
+
+        // Add block type to robot blueprint
+        rb.getBlockList().add(bb.getBlockRef());
+
         bb.setTag(param);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(128, 128);
         bb.setLayoutParams(layoutParams);
-        bb.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
+        bb.setOnDragListener((v, event) -> {
 
-                final int action = event.getAction();
-                System.out.println(action);
+            final int action = event.getAction();
+            // System.out.println(action);
 
-                switch (action) {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        // Determines if this View can accept the dragged data
-                        if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    // Determines if this View can accept the dragged data
+                    if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
 
+                        if (event.getLocalState().equals(v)) {
                             v.setVisibility(View.INVISIBLE);
-
-                            // Invalidate the view to force a redraw in the new tint
-                            v.invalidate();
-
-                            // returns true to indicate that the View can accept the dragged data.
-                            return true;
                         }
 
-                        // Returns false. During the current drag and drop operation, this View will
-                        // not receive events again until ACTION_DRAG_ENDED is sent.
-                        return false;
-
-                    case DragEvent.ACTION_DRAG_ENTERED:
                         // Invalidate the view to force a redraw in the new tint
                         v.invalidate();
 
+                        // returns true to indicate that the View can accept the dragged data.
                         return true;
+                    }
 
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        // Ignore the event
-                        return true;
+                    // Returns false. During the current drag and drop operation, this View will
+                    // not receive events again until ACTION_DRAG_ENDED is sent.
+                    return false;
 
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        v.invalidate();
-                        return true;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    // Invalidate the view to force a redraw in the new tint
+                    v.invalidate();
 
-                    case DragEvent.ACTION_DROP:
+                    return true;
 
-                        // Gets the item containing the dragged data
-                        ClipData.Item item = event.getClipData().getItemAt(0);
-                        System.out.println(item);
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    // Ignore the event
+                    return true;
 
-                        // Gets the text data from the item.
-                        CharSequence dragData = item.getText();
+                case DragEvent.ACTION_DRAG_EXITED:
+                    v.invalidate();
+                    return true;
 
-                        // Displays a message containing the dragged data.
-                        Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
+                case DragEvent.ACTION_DROP:
+                    v.setVisibility(View.VISIBLE);
+
+                    // Gets the item containing the dragged data
+                    ClipData.Item item = event.getClipData().getItemAt(0);
+                    System.out.println(item);
+
+                    // Gets the text data from the item.
+                    CharSequence dragData = item.getText();
+
+                    // Displays a message containing the dragged data.
+                    Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
+
+                    // Invalidates the view to force a redraw
+                    v.invalidate();
+
+                    // Returns true. DragEvent.getResult() will return true.
+                    return true;
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    // Check whether dragged view equals any of the blocks
+                    if (event.getLocalState().equals(v)) {
+                        float x = event.getX();
+                        float y = event.getY();
+
+                        // Detect bounds
+                        if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
+                            v.setVisibility(View.VISIBLE);
+                            return false;
+                        }
 
                         // Invalidates the view to force a redraw
                         v.invalidate();
 
-                        // Returns true. DragEvent.getResult() will return true.
-                        return true;
+                        v.setX(x - 64);
+                        v.setY(y - top_bar.getHeight() - 64);
+                        v.setVisibility(View.VISIBLE);
+                        // Check for collisions with other blocks
 
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        // Check whether dragged view equals any of the blocks
-                        if (event.getLocalState().equals(v)) {
-                            float x = event.getX();
-                            float y = event.getY();
-
-                            // Detect bounds
-                            if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
-                                v.setVisibility(View.VISIBLE);
-                                return false;
-                            }
-
-                            // Invalidates the view to force a redraw
-                            v.invalidate();
-
-                            v.setX(x - 64);
-                            v.setY(y - top_bar.getHeight() - 64);
-                            v.setVisibility(View.VISIBLE);
+                        /*
+                        Debug purposes
+                        for (BasicBlock basicBlock : blockList) {
+                            System.out.println(basicBlock.getBlockRef() + " " + basicBlock.getX() + " " + basicBlock.getY() + "visible: " + basicBlock.getVisibility());
                         }
-                        return true;
+                        */
+                    }
+                    return true;
 
-                    // An unknown action type was received.
-                    default:
-                        Log.e("DragDrop", "Unknown action type received by OnDragListener.");
-                        break;
-                }
-                return false;
+                // An unknown action type was received.
+                default:
+                    Log.e("DragDrop", "Unknown action type received by OnDragListener.");
+                    break;
             }
+            return false;
         });
-        bb.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ClipData.Item item1 = new ClipData.Item((CharSequence) v.getTag());
+        bb.setOnLongClickListener(v -> {
+            ClipData.Item item1 = new ClipData.Item((CharSequence) v.getTag());
 
-                ClipData dragData = new ClipData(
-                        (CharSequence) v.getTag(),
-                        new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
-                        item1);
+            ClipData dragData = new ClipData(
+                    (CharSequence) v.getTag(),
+                    new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
+                    item1);
 
-                v.startDrag(dragData,  // the data to be dragged
-                        new View.DragShadowBuilder(v),  // the drag shadow builder
-                        bb,      // reference to block
-                        0          // flags (not currently used, set to 0)
-                );
-                return true;
-            }
+            v.startDrag(dragData,  // the data to be dragged
+                    new View.DragShadowBuilder(v),  // the drag shadow builder
+                    bb,      // reference to block
+                    0          // flags (not currently used, set to 0)
+            );
+            return true;
         });
         return bb;
     }

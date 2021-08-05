@@ -261,13 +261,6 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
                     }
 
-                    // Gets the item containing the dragged data
-                    //ClipData.Item item = event.getClipData().getItemAt(0);
-                    // Gets the text data from the item.
-                    //CharSequence dragData = item.getText();
-                    // Displays a message containing the dragged data.
-                    //Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
-
                     // Invalidates the view to force a redraw
                     v.invalidate();
 

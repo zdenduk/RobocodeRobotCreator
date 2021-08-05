@@ -14,8 +14,14 @@ import androidx.core.content.ContextCompat;
 import com.asitrack.fontawesome2.FontAwesome.FontAwesomeUtils;
 import com.example.robocoderobotcreator.R;
 import com.example.robocoderobotcreator.model.Block;
+import com.example.robocoderobotcreator.model.events.OnScannedRobot;
 import com.example.robocoderobotcreator.model.events.Run;
+import com.example.robocoderobotcreator.model.events.WhileBlock;
+import com.example.robocoderobotcreator.model.movement.Ahead;
+import com.example.robocoderobotcreator.model.movement.Back;
 import com.example.robocoderobotcreator.model.weapons.Fire;
+import com.example.robocoderobotcreator.model.weapons.TurnGunLeft;
+import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 
 public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
 
@@ -30,7 +36,7 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
     private void initBlockViewParams(@NonNull Context context) {
         setColor(context);
         setText(context);
-        // setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         //setWidth(128);
         //setHeight(128);
         setTextColor(Color.WHITE);
@@ -79,6 +85,24 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         }
         if (Fire.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.fire));
+        }
+        if (WhileBlock.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.while_));
+        }
+        if (Ahead.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.ahead));
+        }
+        if (Back.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.back));
+        }
+        if (OnScannedRobot.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.onscannedrobot));
+        }
+        if (TurnGunRight.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turngunright));
+        }
+        if (TurnGunLeft.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turngunleft));
         }
     }
 

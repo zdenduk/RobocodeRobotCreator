@@ -3,4 +3,10 @@
     <!-- BLOCK ICONS -->
     <string name="fire">&#xf753;</string>
     <string name="run">&#xf04b;</string>
+    <string name="ahead">&#xf062;</string>
+    <string name="back">&#xf063;</string>
+    <string name="while_">&#xf1ce;</string>
+    <string name="turngunright">&#xf0a4;</string>
+    <string name="turngunleft">&#xf0a5;</string>
+    <string name="onscannedrobot">&#xf519;</string>
 </resources>

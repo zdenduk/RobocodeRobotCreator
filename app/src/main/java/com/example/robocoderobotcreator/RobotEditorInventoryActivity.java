@@ -18,7 +18,9 @@ import com.example.robocoderobotcreator.model.movement.*;
 import com.example.robocoderobotcreator.model.weapons.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RobotEditorInventoryActivity extends AppCompatActivity implements RobotsRecyclerAdapter.OnRobotListener {
 
@@ -65,7 +67,7 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
     private RobotBlueprint createDefaultRobot() {
         RobotBlueprint rb = new RobotBlueprint();
         rb.setName("MyFirstRobot");
-        List<Block> blockList = new ArrayList<>();
+        Set<Block> blockList = new HashSet<>();
         Run run = new Run();
         WhileBlock whileBlock = new WhileBlock();
         run.getBlocks().add(whileBlock);

@@ -1,17 +1,17 @@
 package com.example.robocoderobotcreator.model;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class ComboBlock extends ParametrizedBlock {
     public ComboBlock(Category category) {
         super(category);
-        this.blocks = new LinkedList<>();
+        this.blocks = new HashSet<>();
     }
 
-    private Queue<Block> blocks;
+    private Set<Block> blocks;
 
-    public Queue<Block> getBlocks() {
+    public Set<Block> getBlocks() {
         return blocks;
     }
 }

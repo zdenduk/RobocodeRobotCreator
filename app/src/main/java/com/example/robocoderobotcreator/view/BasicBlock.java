@@ -3,6 +3,7 @@ package com.example.robocoderobotcreator.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
@@ -33,6 +34,9 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         //setWidth(128);
         //setHeight(128);
         setTextColor(Color.WHITE);
+
+        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "FontAwesome5FreeSolid900.otf");
+        setTypeface(tf);
     }
 
     public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {
@@ -71,10 +75,10 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
     private void setText(Context context) {
         //IconHelper.resolveIcon(blockRef.getClass(), context, this);
         if (Run.class.equals(blockRef.getClass())) {
-            FontAwesomeUtils.changeFontAwesomeForRegularIconColor(context, this, "\uf04b", Color.WHITE);
+            this.setText(getResources().getString(R.string.run));
         }
         if (Fire.class.equals(blockRef.getClass())) {
-            FontAwesomeUtils.changeFontAwesomeForRegularIconColor(context, this, "\uf05b", Color.WHITE);
+            this.setText(getResources().getString(R.string.fire));
         }
     }
 

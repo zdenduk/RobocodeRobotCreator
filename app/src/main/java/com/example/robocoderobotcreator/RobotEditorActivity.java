@@ -23,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.robocoderobotcreator.model.Block;
+import com.example.robocoderobotcreator.model.ComboBlock;
 import com.example.robocoderobotcreator.model.RobotBlueprint;
 import com.example.robocoderobotcreator.model.Translator;
 import com.example.robocoderobotcreator.model.events.ElseBlock;
@@ -249,15 +250,23 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                 case DragEvent.ACTION_DROP:
                     v.setVisibility(View.VISIBLE);
 
+                    // Check for collisions with other blocks
+                    // Resolve which block was target and which was dragged onto target
+                    BasicBlock targetBlock = (BasicBlock) v;
+                    BasicBlock draggedBlock = (BasicBlock) event.getLocalState();
+
+                    if (targetBlock.getBlockRef() instanceof ComboBlock) {
+                        rb.getBlockList().remove(draggedBlock.getBlockRef());
+                        ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
+                        Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
+                    }
+
                     // Gets the item containing the dragged data
-                    ClipData.Item item = event.getClipData().getItemAt(0);
-                    System.out.println(item);
-
+                    //ClipData.Item item = event.getClipData().getItemAt(0);
                     // Gets the text data from the item.
-                    CharSequence dragData = item.getText();
-
+                    //CharSequence dragData = item.getText();
                     // Displays a message containing the dragged data.
-                    Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(v.getContext(), "Dragged data is " + dragData, Toast.LENGTH_LONG).show();
 
                     // Invalidates the view to force a redraw
                     v.invalidate();
@@ -283,7 +292,6 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         v.setX(x - 64);
                         v.setY(y - top_bar.getHeight() - 64);
                         v.setVisibility(View.VISIBLE);
-                        // Check for collisions with other blocks
 
                         /*
                         Debug purposes

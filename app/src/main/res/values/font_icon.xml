@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BLOCK ICONS -->
+    <string name="fire">&#xf753;</string>
+    <string name="run">&#xf04b;</string>
+</resources>

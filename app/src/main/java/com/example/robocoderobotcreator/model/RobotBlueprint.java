@@ -1,15 +1,17 @@
 package com.example.robocoderobotcreator.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RobotBlueprint {
     public RobotBlueprint() {
-        this.blockList = new ArrayList<>();
+        this.blockList = new HashSet<>();
     }
 
     private String name;
-    private List<Block> blockList;
+    private Set<Block> blockList;
 
     public String getName() {
         return name;
@@ -19,11 +21,11 @@ public class RobotBlueprint {
         this.name = name;
     }
 
-    public List<Block> getBlockList() {
+    public Set<Block> getBlockList() {
         return blockList;
     }
 
-    public void setBlockList(List<Block> blockList) {
+    public void setBlockList(Set<Block> blockList) {
         this.blockList = blockList;
     }
 }

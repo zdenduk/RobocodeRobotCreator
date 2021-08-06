@@ -42,6 +42,7 @@ import com.example.robocoderobotcreator.view.BasicBlock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
@@ -119,30 +120,6 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     public void showRobotText(View view) {
-        /*RobotBlueprint rb = new RobotBlueprint();
-        Run run = new Run();
-        WhileBlock whileBlock = new WhileBlock();
-        run.getBlocks().add(whileBlock);
-        Ahead ahead1 = new Ahead();
-        ahead1.setParameter("100");
-        TurnGunRight turnGunRight1 = new TurnGunRight();
-        turnGunRight1.setParameter("360");
-        Ahead ahead2 = new Ahead();
-        ahead2.setParameter("100");
-        TurnGunRight turnGunRight2 = new TurnGunRight();
-        turnGunRight2.setParameter("360");
-        whileBlock.getBlocks().add(ahead1);
-        whileBlock.getBlocks().add(turnGunRight1);
-        whileBlock.getBlocks().add(ahead2);
-        whileBlock.getBlocks().add(turnGunRight2);
-        OnScannedRobot onScannedRobot = new OnScannedRobot();
-        Fire fire = new Fire();
-        fire.setParameter("1");
-        onScannedRobot.getBlocks().add(fire);
-        rb.getBlockList().add(run);
-        rb.getBlockList().add(onScannedRobot);*/
-
-
         rb.setName(robotNameEditText.getText().toString());
         LayoutInflater inflater = (LayoutInflater)
                 getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -206,8 +183,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         rb.getBlockList().add(bb.getBlockRef());
 
         bb.setTag(param);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(128, 128);
-        bb.setLayoutParams(layoutParams);
+        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
+        bb.setLayoutParams(layoutParams.get());
         bb.setOnDragListener((v, event) -> {
 
             final int action = event.getAction();
@@ -250,7 +227,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                 case DragEvent.ACTION_DROP:
                     v.setVisibility(View.VISIBLE);
 
-                    // Check for collisions with other blocks
+                    // A block was dropped on another block
                     // Resolve which block was target and which was dragged onto target
                     BasicBlock targetBlock = (BasicBlock) v;
                     BasicBlock draggedBlock = (BasicBlock) event.getLocalState();
@@ -258,6 +235,18 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     if (targetBlock.getBlockRef() instanceof ComboBlock) {
                         rb.getBlockList().remove(draggedBlock.getBlockRef());
                         ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
+
+                        // Extend target block to create space for dropped block
+                        layoutParams.set(new FrameLayout.LayoutParams(270, 152)); // normal dimensions + 24 each, add 128 for another block
+                        targetBlock.setLayoutParams(layoutParams.get());
+                        targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                        targetBlock.setPadding(32, 0, 0, 0);
+
+                        // Position dragged block on top of target block
+                        draggedBlock.setX(targetBlock.getX() + 128);
+                        draggedBlock.setY(targetBlock.getY() + 12);
+                        draggedBlock.bringToFront();
+
                         Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
                     }
 

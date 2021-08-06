@@ -237,13 +237,14 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
 
                         // Extend target block to create space for dropped block
-                        layoutParams.set(new FrameLayout.LayoutParams(270, 152)); // normal dimensions + 24 each, add 128 for another block
+                        int targetBlockChildrenCount = ((ComboBlock) targetBlock.getBlockRef()).getBlocks().size();
+                        layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
                         targetBlock.setLayoutParams(layoutParams.get());
                         targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                         targetBlock.setPadding(32, 0, 0, 0);
 
                         // Position dragged block on top of target block
-                        draggedBlock.setX(targetBlock.getX() + 128);
+                        draggedBlock.setX(targetBlock.getX() + 128*targetBlockChildrenCount);
                         draggedBlock.setY(targetBlock.getY() + 12);
                         draggedBlock.bringToFront();
 
@@ -273,6 +274,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                         v.setX(x - 64);
                         v.setY(y - top_bar.getHeight() - 64);
+                        // TODO move all children as well
                         v.setVisibility(View.VISIBLE);
 
                         /*

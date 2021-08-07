@@ -277,21 +277,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         draggedBlock.setX(x - 64);
                         draggedBlock.setY(y - top_bar.getHeight() - 64);
                         // TODO move all children as well
-                        if (draggedBlock.getBlockRef() instanceof ComboBlock) {
-                            if(((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0){
-                                Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
-                                int counter = 0;
-                                for (Block child : children) {
-                                    for (BasicBlock basicBlock : blockList) {
-                                        if(basicBlock.getBlockRef().equals(child)){
-                                            counter++;
-                                            basicBlock.setX(x - 64 + 128*counter);
-                                            basicBlock.setY(y - top_bar.getHeight() - 64 + 12);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        moveChildren(draggedBlock, x, y);
 
                         v.setVisibility(View.VISIBLE);
                         // Invalidates the view to force a redraw
@@ -328,5 +314,25 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
             return true;
         });
         return bb;
+    }
+
+    private void moveChildren(BasicBlock draggedBlock, float x, float y) {
+        if (draggedBlock.getBlockRef() instanceof ComboBlock) {
+            if (((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0) {
+                Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
+                int counter = 0;
+                for (Block child : children) {
+                    for (BasicBlock basicBlock : blockList) {
+                        if (basicBlock.getBlockRef().equals(child)) {
+                            counter++;
+                            basicBlock.setX(x - 64 + 128 * counter);
+                            basicBlock.setY(y - top_bar.getHeight() - 64 + 12);
+                            System.out.println(draggedBlock.getBlockRef().getClass() + " " + (x - 64 + 128 * counter) + " " + (y - top_bar.getHeight() - 64 + 12));
+                            moveChildren(basicBlock, x + 128 * counter, y + 12);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

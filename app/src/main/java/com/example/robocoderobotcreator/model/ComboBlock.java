@@ -1,12 +1,13 @@
 package com.example.robocoderobotcreator.model;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class ComboBlock extends ParametrizedBlock {
     public ComboBlock(Category category) {
         super(category);
-        this.blocks = new HashSet<>();
+        this.blocks = new LinkedHashSet<>();
     }
 
     private Set<Block> blocks;

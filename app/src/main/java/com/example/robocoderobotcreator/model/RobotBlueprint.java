@@ -2,12 +2,13 @@ package com.example.robocoderobotcreator.model;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class RobotBlueprint {
     public RobotBlueprint() {
-        this.blockList = new HashSet<>();
+        this.blockList = new LinkedHashSet<>();
     }
 
     private String name;

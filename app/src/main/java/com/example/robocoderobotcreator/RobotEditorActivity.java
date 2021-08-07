@@ -42,6 +42,7 @@ import com.example.robocoderobotcreator.view.BasicBlock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
@@ -244,11 +245,13 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         targetBlock.setPadding(32, 0, 0, 0);
 
                         // Position dragged block on top of target block
-                        draggedBlock.setX(targetBlock.getX() + 128*targetBlockChildrenCount);
+                        draggedBlock.setX(targetBlock.getX() + 128 * targetBlockChildrenCount);
                         draggedBlock.setY(targetBlock.getY() + 12);
                         draggedBlock.bringToFront();
 
                         Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
+                    } else {
+                        // TODO this block doesnt accept
                     }
 
                     // Invalidates the view to force a redraw
@@ -269,14 +272,30 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                             return false;
                         }
 
+                        draggedBlock = (BasicBlock) v;
+
+                        draggedBlock.setX(x - 64);
+                        draggedBlock.setY(y - top_bar.getHeight() - 64);
+                        // TODO move all children as well
+                        if (draggedBlock.getBlockRef() instanceof ComboBlock) {
+                            if(((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0){
+                                Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
+                                int counter = 0;
+                                for (Block child : children) {
+                                    for (BasicBlock basicBlock : blockList) {
+                                        if(basicBlock.getBlockRef().equals(child)){
+                                            counter++;
+                                            basicBlock.setX(x - 64 + 128*counter);
+                                            basicBlock.setY(y - top_bar.getHeight() - 64 + 12);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        v.setVisibility(View.VISIBLE);
                         // Invalidates the view to force a redraw
                         v.invalidate();
-
-                        v.setX(x - 64);
-                        v.setY(y - top_bar.getHeight() - 64);
-                        // TODO move all children as well
-                        v.setVisibility(View.VISIBLE);
-
                         /*
                         Debug purposes
                         for (BasicBlock basicBlock : blockList) {

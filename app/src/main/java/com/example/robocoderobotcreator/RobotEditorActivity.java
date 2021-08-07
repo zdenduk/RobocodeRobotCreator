@@ -228,6 +228,11 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                 case DragEvent.ACTION_DROP:
                     v.setVisibility(View.VISIBLE);
 
+                    // View was dropped on itself
+                    if (event.getLocalState().equals(v)) {
+                        return false;
+                    }
+
                     // A block was dropped on another block
                     // Resolve which block was target and which was dragged onto target
                     BasicBlock targetBlock = (BasicBlock) v;
@@ -248,6 +253,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         draggedBlock.setX(targetBlock.getX() + 128 * targetBlockChildrenCount);
                         draggedBlock.setY(targetBlock.getY() + 12);
                         draggedBlock.bringToFront();
+                        moveChildren(draggedBlock, draggedBlock.getX() + 64, draggedBlock.getY() + top_bar.getHeight() + 64);
 
                         Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
                     } else {
@@ -261,6 +267,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     return true;
 
                 case DragEvent.ACTION_DRAG_ENDED:
+                    // View was dropped on canvas
                     // Check whether dragged view equals any of the blocks
                     if (event.getLocalState().equals(v)) {
                         float x = event.getX();
@@ -276,7 +283,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                         draggedBlock.setX(x - 64);
                         draggedBlock.setY(y - top_bar.getHeight() - 64);
-                        // TODO move all children as well
+
                         moveChildren(draggedBlock, x, y);
 
                         v.setVisibility(View.VISIBLE);
@@ -327,7 +334,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                             counter++;
                             basicBlock.setX(x - 64 + 128 * counter);
                             basicBlock.setY(y - top_bar.getHeight() - 64 + 12);
-                            System.out.println(draggedBlock.getBlockRef().getClass() + " " + (x - 64 + 128 * counter) + " " + (y - top_bar.getHeight() - 64 + 12));
+                            basicBlock.bringToFront();
                             moveChildren(basicBlock, x + 128 * counter, y + 12);
                         }
                     }

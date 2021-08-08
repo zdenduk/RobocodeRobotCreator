@@ -344,10 +344,16 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
     private void adaptBlockDimensions(BasicBlock targetBlock, int targetBlockChildrenCount) {
         AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
-        layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
-        targetBlock.setLayoutParams(layoutParams.get());
-        targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        targetBlock.setPadding(32, 0, 0, 0);
+        if (targetBlockChildrenCount != 0) {
+            layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
+            targetBlock.setLayoutParams(layoutParams.get());
+            targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            targetBlock.setPadding(32, 0, 0, 0);
+        } else {
+            targetBlock.setLayoutParams(layoutParams.get());
+            targetBlock.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            targetBlock.setPadding(0, 0, 0, 0);
+        }
     }
 
     private void moveChildren(BasicBlock draggedBlock, float x, float y) {

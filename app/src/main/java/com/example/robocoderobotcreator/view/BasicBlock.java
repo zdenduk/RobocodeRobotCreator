@@ -28,10 +28,12 @@ import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
 
     private final Block blockRef;
+    private BasicBlock blockParent;
 
     public BasicBlock(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;
+        blockParent = null;
         initBlockViewParams(context);
     }
 
@@ -113,5 +115,11 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         super.onDraw(canvas);
     }
 
+    public BasicBlock getBlockParent() {
+        return blockParent;
+    }
 
+    public void setBlockParent(BasicBlock blockParent) {
+        this.blockParent = blockParent;
+    }
 }

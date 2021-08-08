@@ -33,7 +33,7 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        RobotDataManager.INSTANCE.readAllRobotsFilesFromInternalStorage(getApplicationContext());
+        //RobotDataManager.INSTANCE.readAllRobotsFilesFromInternalStorage(getApplicationContext());
 
         setContentView(R.layout.activity_robot_editor_inventory);
         mRecyclerView = findViewById(R.id.roboteditorview);

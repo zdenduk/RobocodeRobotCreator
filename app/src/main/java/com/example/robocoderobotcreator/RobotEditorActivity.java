@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -242,12 +243,21 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         rb.getBlockList().remove(draggedBlock.getBlockRef());
                         ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
 
+                        if (draggedBlock.getBlockParent() != null) {
+                            BasicBlock parent = draggedBlock.getBlockParent();
+
+                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
+
+                            draggedBlock.setBlockParent(null);
+
+                            adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
+                        }
+
+                        draggedBlock.setBlockParent(targetBlock);
+
                         // Extend target block to create space for dropped block
                         int targetBlockChildrenCount = ((ComboBlock) targetBlock.getBlockRef()).getBlocks().size();
-                        layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
-                        targetBlock.setLayoutParams(layoutParams.get());
-                        targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                        targetBlock.setPadding(32, 0, 0, 0);
+                        adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
 
                         // Position dragged block on top of target block
                         draggedBlock.setX(targetBlock.getX() + 128 * targetBlockChildrenCount);
@@ -286,6 +296,15 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                         moveChildren(draggedBlock, x, y);
 
+                        if (draggedBlock.getBlockParent() != null) {
+                            BasicBlock parent = draggedBlock.getBlockParent();
+
+                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
+                            rb.getBlockList().add(draggedBlock.getBlockRef());
+
+                            draggedBlock.setBlockParent(null);
+                        }
+
                         v.setVisibility(View.VISIBLE);
                         // Invalidates the view to force a redraw
                         v.invalidate();
@@ -321,6 +340,14 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
             return true;
         });
         return bb;
+    }
+
+    private void adaptBlockDimensions(BasicBlock targetBlock, int targetBlockChildrenCount) {
+        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
+        layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
+        targetBlock.setLayoutParams(layoutParams.get());
+        targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        targetBlock.setPadding(32, 0, 0, 0);
     }
 
     private void moveChildren(BasicBlock draggedBlock, float x, float y) {

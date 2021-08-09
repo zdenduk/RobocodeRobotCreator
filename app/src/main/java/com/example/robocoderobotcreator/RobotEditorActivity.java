@@ -303,6 +303,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                             rb.getBlockList().add(draggedBlock.getBlockRef());
 
                             draggedBlock.setBlockParent(null);
+                            
+                            adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
                         }
 
                         v.setVisibility(View.VISIBLE);

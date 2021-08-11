@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.robocoderobotcreator.R;
 import com.example.robocoderobotcreator.model.Block;
+import com.example.robocoderobotcreator.model.ParametrizedBlock;
 import com.example.robocoderobotcreator.model.events.OnHitWall;
 import com.example.robocoderobotcreator.model.events.OnScannedRobot;
 import com.example.robocoderobotcreator.model.events.Run;
@@ -29,28 +33,41 @@ import com.example.robocoderobotcreator.model.weapons.Fire;
 import com.example.robocoderobotcreator.model.weapons.TurnGunLeft;
 import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 
-public class BasicBlockView extends androidx.appcompat.widget.AppCompatTextView {
+public class BasicBlockView extends LinearLayout {
 
     private final Block blockRef;
     private BasicBlockView blockParent;
+    private EditText parameterEditText;
 
     public BasicBlockView(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;
         blockParent = null;
         initBlockViewParams(context);
+        this.setOrientation(LinearLayout.VERTICAL);
     }
 
     private void initBlockViewParams(@NonNull Context context) {
         setColor(context);
-        setText(context);
-        setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        //setWidth(128);
-        //setHeight(128);
-        setTextColor(Color.WHITE);
 
+        // Create icon
+        TextView textView = new TextView(context);
+        textView.setTextColor(Color.WHITE);
         Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "FontAwesome5FreeSolid900.otf");
-        setTypeface(tf);
+        textView.setTypeface(tf);
+        setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        setText(context, textView);
+        this.addView(textView);
+
+        if (blockRef instanceof ParametrizedBlock) {
+            // Create edit text if block is ParametrizedBlock
+            this.setPadding(0, 32, 0, 0);
+            EditText editText = new EditText(context);
+            editText.setTextColor(Color.WHITE);
+            editText.setMaxLines(1);
+            this.addView(editText);
+            parameterEditText = editText;
+        }
     }
 
     public BasicBlockView(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {
@@ -86,52 +103,52 @@ public class BasicBlockView extends androidx.appcompat.widget.AppCompatTextView 
         }
     }
 
-    private void setText(Context context) {
+    private void setText(Context context, TextView tv) {
         //IconHelper.resolveIcon(blockRef.getClass(), context, this);
         if (Run.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.run));
+            tv.setText(getResources().getString(R.string.run));
         }
         if (Fire.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.fire));
+            tv.setText(getResources().getString(R.string.fire));
         }
         if (WhileBlock.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.while_));
+            tv.setText(getResources().getString(R.string.while_));
         }
         if (OnHitWall.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.onhitwall));
+            tv.setText(getResources().getString(R.string.onhitwall));
         }
         if (Ahead.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.ahead));
+            tv.setText(getResources().getString(R.string.ahead));
         }
         if (Back.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.back));
+            tv.setText(getResources().getString(R.string.back));
         }
         if (TurnLeft.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turnleft));
+            tv.setText(getResources().getString(R.string.turnleft));
         }
         if (TurnRight.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turnright));
+            tv.setText(getResources().getString(R.string.turnright));
         }
         if (OnScannedRobot.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.onscannedrobot));
+            tv.setText(getResources().getString(R.string.onscannedrobot));
         }
         if (TurnGunRight.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turngunright));
+            tv.setText(getResources().getString(R.string.turngunright));
         }
         if (TurnGunLeft.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turngunleft));
+            tv.setText(getResources().getString(R.string.turngunleft));
         }
         if (SetAdjustRadarForGunTurn.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.setadjustradarforgunturn));
+            tv.setText(getResources().getString(R.string.setadjustradarforgunturn));
         }
         if (SetAdjustRadarForRobotTurn.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.setadjustradarforrobotturn));
+            tv.setText(getResources().getString(R.string.setadjustradarforrobotturn));
         }
         if (TurnRadarLeft.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turnradarleft));
+            tv.setText(getResources().getString(R.string.turnradarleft));
         }
         if (TurnRadarRight.class.equals(blockRef.getClass())) {
-            this.setText(getResources().getString(R.string.turnradarright));
+            tv.setText(getResources().getString(R.string.turnradarright));
         }
     }
 
@@ -146,5 +163,9 @@ public class BasicBlockView extends androidx.appcompat.widget.AppCompatTextView 
 
     public void setBlockParent(BasicBlockView blockParent) {
         this.blockParent = blockParent;
+    }
+
+    public EditText getParameterEditText() {
+        return parameterEditText;
     }
 }

@@ -9,7 +9,7 @@ public enum Translator {
         if (block instanceof ComboBlock) {
             ComboBlock cb = (ComboBlock) block;
 
-            sb.append(block.getCode().replace("$", cb.getParameter())).append("\n");
+            sb.append(block.getCode()).append("\n");
             sb.append("{\n");
             for (Block cbBlock : cb.getBlocks()) {
                 sb.append(translateBlock(cbBlock));

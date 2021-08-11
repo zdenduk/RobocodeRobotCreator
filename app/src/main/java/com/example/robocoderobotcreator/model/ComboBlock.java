@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public abstract class ComboBlock extends ParametrizedBlock {
+public abstract class ComboBlock extends Block {
     public ComboBlock(Category category) {
         super(category);
         this.blocks = new LinkedHashSet<>();

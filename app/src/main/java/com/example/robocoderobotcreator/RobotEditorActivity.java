@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.robocoderobotcreator.model.Block;
 import com.example.robocoderobotcreator.model.ComboBlock;
+import com.example.robocoderobotcreator.model.ParametrizedBlock;
 import com.example.robocoderobotcreator.model.RobotBlueprint;
 import com.example.robocoderobotcreator.model.Translator;
 import com.example.robocoderobotcreator.model.events.ElseBlock;
@@ -63,6 +64,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     int window_height;
 
     List<BasicBlockView> blockList;
+
+    int defaultBlockDimension;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +116,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         top_bar = findViewById(R.id.top_bar);
         bottom_bar = findViewById(R.id.bottom_bar);
 
+        defaultBlockDimension = 192;
+
         Intent intent = getIntent();
         int pos = intent.getIntExtra("position", -1);
 
@@ -123,10 +128,22 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
     public void saveRobot(View view) {
         rb.setName(robotNameEditText.getText().toString());
+        for (BasicBlockView basicBlockView : blockList) {
+            if (basicBlockView.getBlockRef() instanceof ParametrizedBlock) {
+                ParametrizedBlock pb = (ParametrizedBlock) basicBlockView.getBlockRef();
+                pb.setParameter(basicBlockView.getParameterEditText().getText().toString());
+            }
+        }
         RobotDataManager.INSTANCE.writeRobotFileOnInternalStorage(getApplicationContext(), rb);
     }
 
     public void showRobotText(View view) {
+        for (BasicBlockView basicBlockView : blockList) {
+            if (basicBlockView.getBlockRef() instanceof ParametrizedBlock) {
+                ParametrizedBlock pb = (ParametrizedBlock) basicBlockView.getBlockRef();
+                pb.setParameter(basicBlockView.getParameterEditText().getText().toString());
+            }
+        }
         rb.setName(robotNameEditText.getText().toString());
         LayoutInflater inflater = (LayoutInflater)
                 getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -208,7 +225,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         rb.getBlockList().add(bb.getBlockRef());
 
         bb.setTag(param);
-        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
+        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(defaultBlockDimension, defaultBlockDimension));
         bb.setLayoutParams(layoutParams.get());
         bb.setOnDragListener((v, event) -> {
 
@@ -275,7 +292,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                             adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
 
-                            moveChildren(parent, parent.getX() + 64, parent.getY() + top_bar.getHeight() + 64);
+                            moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
                         }
 
                         draggedBlock.setBlockParent(targetBlock);
@@ -285,14 +302,12 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
 
                         // Position dragged block on top of target block
-                        draggedBlock.setX(targetBlock.getX() + 128 * targetBlockChildrenCount);
+                        draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount);
                         draggedBlock.setY(targetBlock.getY() + 12);
                         draggedBlock.bringToFront();
-                        moveChildren(draggedBlock, draggedBlock.getX() + 64, draggedBlock.getY() + top_bar.getHeight() + 64);
-
-                        Toast.makeText(v.getContext(), draggedBlock.getBlockRef() + " connected to " + targetBlock.getBlockRef(), Toast.LENGTH_LONG).show();
+                        moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
                     } else {
-                        // TODO this block doesnt accept
+                        Toast.makeText(v.getContext(), "This block is not a ComboBlock!", Toast.LENGTH_LONG).show();
                     }
 
                     // Invalidates the view to force a redraw
@@ -316,8 +331,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                         draggedBlock = (BasicBlockView) v;
 
-                        draggedBlock.setX(x - 64);
-                        draggedBlock.setY(y - top_bar.getHeight() - 64);
+                        draggedBlock.setX(x - defaultBlockDimension / 2);
+                        draggedBlock.setY(y - top_bar.getHeight() - defaultBlockDimension / 2);
 
                         moveChildren(draggedBlock, x, y);
 
@@ -331,7 +346,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                             adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
 
-                            moveChildren(parent, parent.getX() + 64, parent.getY() + top_bar.getHeight() + 64);
+                            moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
                         }
 
                         v.setVisibility(View.VISIBLE);
@@ -372,12 +387,12 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     private void adaptBlockDimensions(BasicBlockView targetBlock, int targetBlockChildrenCount) {
-        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
+        AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(defaultBlockDimension, defaultBlockDimension));
         if (targetBlockChildrenCount != 0) {
-            layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
+            layoutParams.set(new FrameLayout.LayoutParams(defaultBlockDimension + 24 + targetBlockChildrenCount * defaultBlockDimension, defaultBlockDimension + 24)); // normal dimensions + 24 each, add 128 for another block
             targetBlock.setLayoutParams(layoutParams.get());
             targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            targetBlock.setPadding(32, 0, 0, 0);
+            targetBlock.setPadding(defaultBlockDimension / 3, 0, 0, 0);
         } else {
             targetBlock.setLayoutParams(layoutParams.get());
             targetBlock.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
@@ -394,10 +409,10 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     for (BasicBlockView basicBlockView : blockList) {
                         if (basicBlockView.getBlockRef().equals(child)) {
                             counter++;
-                            basicBlockView.setX(x - 64 + 128 * counter);
-                            basicBlockView.setY(y - top_bar.getHeight() - 64 + 12);
+                            basicBlockView.setX(x - defaultBlockDimension / 2 + defaultBlockDimension * counter);
+                            basicBlockView.setY(y - top_bar.getHeight() - defaultBlockDimension / 2 + 12);
                             basicBlockView.bringToFront();
-                            moveChildren(basicBlockView, x + 128 * counter, y + 12);
+                            moveChildren(basicBlockView, x + defaultBlockDimension * counter, y + 12);
                         }
                     }
                 }

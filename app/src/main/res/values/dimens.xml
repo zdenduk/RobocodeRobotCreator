@@ -4,9 +4,6 @@
     <dimen name="activity_horizontal_margin">16sp</dimen>
     <dimen name="activity_vertical_margin">16sp</dimen>
 
-    <dimen name="block_size">128sp</dimen>
-    <dimen name="field_margin">4sp</dimen>
-
     <dimen name="loading_screen_size">72sp</dimen>
     <dimen name="loading_screen_button_text_size">32sp</dimen>
 

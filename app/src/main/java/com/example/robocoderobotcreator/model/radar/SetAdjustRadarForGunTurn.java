@@ -8,7 +8,7 @@ public class SetAdjustRadarForGunTurn extends Block {
 
     private String code = "setAdjustRadarForGunTurn(true);";
 
-    protected SetAdjustRadarForGunTurn() {
+    public SetAdjustRadarForGunTurn() {
         super(Category.RADAR);
     }
 

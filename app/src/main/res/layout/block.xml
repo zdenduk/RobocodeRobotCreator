@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.robocoderobotcreator.view.BasicBlock xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.robocoderobotcreator.view.BasicBlockView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/block"
     android:layout_width="@dimen/block_size"
     android:layout_height="@dimen/block_size"

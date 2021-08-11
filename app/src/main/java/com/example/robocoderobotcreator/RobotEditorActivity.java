@@ -10,7 +10,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -35,11 +34,17 @@ import com.example.robocoderobotcreator.model.events.Run;
 import com.example.robocoderobotcreator.model.events.WhileBlock;
 import com.example.robocoderobotcreator.model.movement.Ahead;
 import com.example.robocoderobotcreator.model.movement.Back;
+import com.example.robocoderobotcreator.model.movement.TurnLeft;
+import com.example.robocoderobotcreator.model.movement.TurnRight;
+import com.example.robocoderobotcreator.model.radar.SetAdjustRadarForGunTurn;
+import com.example.robocoderobotcreator.model.radar.SetAdjustRadarForRobotTurn;
+import com.example.robocoderobotcreator.model.radar.TurnRadarLeft;
+import com.example.robocoderobotcreator.model.radar.TurnRadarRight;
 import com.example.robocoderobotcreator.model.weapons.Fire;
 import com.example.robocoderobotcreator.model.weapons.TurnGunLeft;
 import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 import com.example.robocoderobotcreator.support.RobotDataManager;
-import com.example.robocoderobotcreator.view.BasicBlock;
+import com.example.robocoderobotcreator.view.BasicBlockView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +62,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
     int window_height;
 
-    List<BasicBlock> blockList;
+    List<BasicBlockView> blockList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,14 +174,32 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
             case R.id.back_item:
                 canvas.addView(createBasicBlock("BACK", new Back()));
                 return true;
+            case R.id.turnleft_item:
+                canvas.addView(createBasicBlock("TURNLEFT", new TurnLeft()));
+                return true;
+            case R.id.turnright_item:
+                canvas.addView(createBasicBlock("TURNRIGHT", new TurnRight()));
+                return true;
+            case R.id.turnradarleft_item:
+                canvas.addView(createBasicBlock("TURNRADARLEFT", new TurnRadarLeft()));
+                return true;
+            case R.id.turnradarright_item:
+                canvas.addView(createBasicBlock("TURNRADARRIGHT", new TurnRadarRight()));
+                return true;
+            case R.id.setadjustradarforgunturn_item:
+                canvas.addView(createBasicBlock("SETADJUSTRADARFORGUNTURN", new SetAdjustRadarForGunTurn()));
+                return true;
+            case R.id.setadjustradarforrobotturn_item:
+                canvas.addView(createBasicBlock("SETADJUSTRADARFORROBOTTURN", new SetAdjustRadarForRobotTurn()));
+                return true;
             default:
                 return false;
         }
     }
 
-    private BasicBlock createBasicBlock(String param, Block type) {
+    private BasicBlockView createBasicBlock(String param, Block type) {
         // Create BasicBlock
-        BasicBlock bb = new BasicBlock(getApplicationContext(), type);
+        BasicBlockView bb = new BasicBlockView(getApplicationContext(), type);
 
         // Add block reference for collisions checking
         blockList.add(bb);
@@ -236,21 +259,23 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                     // A block was dropped on another block
                     // Resolve which block was target and which was dragged onto target
-                    BasicBlock targetBlock = (BasicBlock) v;
-                    BasicBlock draggedBlock = (BasicBlock) event.getLocalState();
+                    BasicBlockView targetBlock = (BasicBlockView) v;
+                    BasicBlockView draggedBlock = (BasicBlockView) event.getLocalState();
 
                     if (targetBlock.getBlockRef() instanceof ComboBlock) {
                         rb.getBlockList().remove(draggedBlock.getBlockRef());
                         ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
 
                         if (draggedBlock.getBlockParent() != null) {
-                            BasicBlock parent = draggedBlock.getBlockParent();
+                            BasicBlockView parent = draggedBlock.getBlockParent();
 
                             ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
 
                             draggedBlock.setBlockParent(null);
 
                             adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
+
+                            moveChildren(parent, parent.getX() + 64, parent.getY() + top_bar.getHeight() + 64);
                         }
 
                         draggedBlock.setBlockParent(targetBlock);
@@ -289,7 +314,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                             return false;
                         }
 
-                        draggedBlock = (BasicBlock) v;
+                        draggedBlock = (BasicBlockView) v;
 
                         draggedBlock.setX(x - 64);
                         draggedBlock.setY(y - top_bar.getHeight() - 64);
@@ -297,14 +322,16 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         moveChildren(draggedBlock, x, y);
 
                         if (draggedBlock.getBlockParent() != null) {
-                            BasicBlock parent = draggedBlock.getBlockParent();
+                            BasicBlockView parent = draggedBlock.getBlockParent();
 
                             ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
                             rb.getBlockList().add(draggedBlock.getBlockRef());
 
                             draggedBlock.setBlockParent(null);
-                            
+
                             adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
+
+                            moveChildren(parent, parent.getX() + 64, parent.getY() + top_bar.getHeight() + 64);
                         }
 
                         v.setVisibility(View.VISIBLE);
@@ -344,7 +371,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         return bb;
     }
 
-    private void adaptBlockDimensions(BasicBlock targetBlock, int targetBlockChildrenCount) {
+    private void adaptBlockDimensions(BasicBlockView targetBlock, int targetBlockChildrenCount) {
         AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(128, 128));
         if (targetBlockChildrenCount != 0) {
             layoutParams.set(new FrameLayout.LayoutParams(128 + 24 + targetBlockChildrenCount * 128, 128 + 24)); // normal dimensions + 24 each, add 128 for another block
@@ -358,19 +385,19 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         }
     }
 
-    private void moveChildren(BasicBlock draggedBlock, float x, float y) {
+    private void moveChildren(BasicBlockView draggedBlock, float x, float y) {
         if (draggedBlock.getBlockRef() instanceof ComboBlock) {
             if (((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0) {
                 Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
                 int counter = 0;
                 for (Block child : children) {
-                    for (BasicBlock basicBlock : blockList) {
-                        if (basicBlock.getBlockRef().equals(child)) {
+                    for (BasicBlockView basicBlockView : blockList) {
+                        if (basicBlockView.getBlockRef().equals(child)) {
                             counter++;
-                            basicBlock.setX(x - 64 + 128 * counter);
-                            basicBlock.setY(y - top_bar.getHeight() - 64 + 12);
-                            basicBlock.bringToFront();
-                            moveChildren(basicBlock, x + 128 * counter, y + 12);
+                            basicBlockView.setX(x - 64 + 128 * counter);
+                            basicBlockView.setY(y - top_bar.getHeight() - 64 + 12);
+                            basicBlockView.bringToFront();
+                            moveChildren(basicBlockView, x + 128 * counter, y + 12);
                         }
                     }
                 }

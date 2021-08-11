@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- BLOCK ICONS -->
-    <string name="fire">&#xf753;</string>
+    <string name="onscannedrobot">&#xf519;</string>
+    <string name="onhitwall">&#xf853;</string>
     <string name="run">&#xf04b;</string>
+    <string name="while_">&#xf1ce;</string>
     <string name="ahead">&#xf062;</string>
     <string name="back">&#xf063;</string>
-    <string name="while_">&#xf1ce;</string>
+    <string name="turnleft">&#xf060;</string>
+    <string name="turnright">&#xf061;</string>
     <string name="turngunright">&#xf0a4;</string>
     <string name="turngunleft">&#xf0a5;</string>
-    <string name="onscannedrobot">&#xf519;</string>
+    <string name="fire">&#xf753;</string>
+    <string name="turnradarleft">&#xf053;</string>
+    <string name="turnradarright">&#xf054;</string>
+    <string name="setadjustradarforgunturn">&#xf247;</string>
+    <string name="setadjustradarforrobotturn">&#xf5fd;</string>
 </resources>

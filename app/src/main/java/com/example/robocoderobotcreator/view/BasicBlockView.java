@@ -3,9 +3,7 @@ package com.example.robocoderobotcreator.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
@@ -13,24 +11,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.asitrack.fontawesome2.FontAwesome.FontAwesomeUtils;
 import com.example.robocoderobotcreator.R;
 import com.example.robocoderobotcreator.model.Block;
+import com.example.robocoderobotcreator.model.events.OnHitWall;
 import com.example.robocoderobotcreator.model.events.OnScannedRobot;
 import com.example.robocoderobotcreator.model.events.Run;
 import com.example.robocoderobotcreator.model.events.WhileBlock;
 import com.example.robocoderobotcreator.model.movement.Ahead;
 import com.example.robocoderobotcreator.model.movement.Back;
+import com.example.robocoderobotcreator.model.movement.TurnLeft;
+import com.example.robocoderobotcreator.model.movement.TurnRight;
+import com.example.robocoderobotcreator.model.radar.SetAdjustRadarForGunTurn;
+import com.example.robocoderobotcreator.model.radar.SetAdjustRadarForRobotTurn;
+import com.example.robocoderobotcreator.model.radar.TurnRadarLeft;
+import com.example.robocoderobotcreator.model.radar.TurnRadarRight;
 import com.example.robocoderobotcreator.model.weapons.Fire;
 import com.example.robocoderobotcreator.model.weapons.TurnGunLeft;
 import com.example.robocoderobotcreator.model.weapons.TurnGunRight;
 
-public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
+public class BasicBlockView extends androidx.appcompat.widget.AppCompatTextView {
 
     private final Block blockRef;
-    private BasicBlock blockParent;
+    private BasicBlockView blockParent;
 
-    public BasicBlock(@NonNull Context context, Block blockRef) {
+    public BasicBlockView(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;
         blockParent = null;
@@ -49,13 +53,13 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         setTypeface(tf);
     }
 
-    public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {
+    public BasicBlockView(@NonNull Context context, @Nullable AttributeSet attrs, Block blockRef) {
         super(context, attrs);
         this.blockRef = blockRef;
         setColor(context);
     }
 
-    public BasicBlock(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, Block blockRef) {
+    public BasicBlockView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, Block blockRef) {
         super(context, attrs, defStyleAttr);
         this.blockRef = blockRef;
         setColor(context);
@@ -93,11 +97,20 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         if (WhileBlock.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.while_));
         }
+        if (OnHitWall.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.onhitwall));
+        }
         if (Ahead.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.ahead));
         }
         if (Back.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.back));
+        }
+        if (TurnLeft.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turnleft));
+        }
+        if (TurnRight.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turnright));
         }
         if (OnScannedRobot.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.onscannedrobot));
@@ -108,6 +121,18 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         if (TurnGunLeft.class.equals(blockRef.getClass())) {
             this.setText(getResources().getString(R.string.turngunleft));
         }
+        if (SetAdjustRadarForGunTurn.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.setadjustradarforgunturn));
+        }
+        if (SetAdjustRadarForRobotTurn.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.setadjustradarforrobotturn));
+        }
+        if (TurnRadarLeft.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turnradarleft));
+        }
+        if (TurnRadarRight.class.equals(blockRef.getClass())) {
+            this.setText(getResources().getString(R.string.turnradarright));
+        }
     }
 
     @Override
@@ -115,11 +140,11 @@ public class BasicBlock extends androidx.appcompat.widget.AppCompatTextView {
         super.onDraw(canvas);
     }
 
-    public BasicBlock getBlockParent() {
+    public BasicBlockView getBlockParent() {
         return blockParent;
     }
 
-    public void setBlockParent(BasicBlock blockParent) {
+    public void setBlockParent(BasicBlockView blockParent) {
         this.blockParent = blockParent;
     }
 }

@@ -197,6 +197,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         } else {
                             rb.getBlockList().remove(draggedBlock.getBlockRef());
                         }
+                        removeAllChildrenBlockViews(draggedBlock);
+
                         ((ViewGroup) draggedBlock.getParent()).removeView(draggedBlock);
                         Toast.makeText(v.getContext(), "Block was successfully deleted.", Toast.LENGTH_LONG).show();
                         return true;
@@ -313,6 +315,22 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     break;
             }
             return false;
+        }
+    }
+
+    private void removeAllChildrenBlockViews(BasicBlockView draggedBlock) {
+        if (draggedBlock.getBlockRef() instanceof ComboBlock) {
+            if (((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0) {
+                Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
+                for (Block child : children) {
+                    for (BasicBlockView basicBlockView : blockList) {
+                        if (basicBlockView.getBlockRef().equals(child)) {
+                            removeAllChildrenBlockViews(basicBlockView);
+                            ((ViewGroup) basicBlockView.getParent()).removeView(basicBlockView);
+                        }
+                    }
+                }
+            }
         }
     }
 

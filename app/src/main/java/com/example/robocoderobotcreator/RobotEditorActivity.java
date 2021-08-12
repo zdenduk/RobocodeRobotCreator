@@ -10,9 +10,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
@@ -54,15 +56,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
-    RobotBlueprint rb;
-    EditText robotNameEditText;
+    private RobotBlueprint rb;
+    private EditText robotNameEditText;
 
-    FrameLayout canvas;
-    LinearLayout top_bar;
-    LinearLayout bottom_bar;
+    private FrameLayout canvas;
+    private LinearLayout top_bar;
+    private LinearLayout bottom_bar;
+    private ImageView trash;
 
-    int window_height;
-    int window_width;
+    private int window_height;
+    private int window_width;
 
     List<BasicBlockView> blockList;
 
@@ -127,6 +130,190 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         //  rb = RobotDataManager.INSTANCE.getRobotData().get(pos);
         rb = new RobotBlueprint();
         blockList = new ArrayList<>();
+
+        trash = (ImageView) findViewById(R.id.trash);
+        trash.setTag("TRASH");
+        trash.setOnDragListener(new CustomDragListener());
+    }
+
+    private class CustomDragListener implements View.OnDragListener {
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+
+            final int action = event.getAction();
+            // System.out.println(action);
+
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    // Determines if this View can accept the dragged data
+                    if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+
+                        if (event.getLocalState().equals(v)) {
+                            v.setVisibility(View.INVISIBLE);
+                            trash.setVisibility(View.VISIBLE);
+                        }
+
+                        // Invalidate the view to force a redraw in the new tint
+                        v.invalidate();
+
+                        // returns true to indicate that the View can accept the dragged data.
+                        return true;
+                    }
+
+                    // Returns false. During the current drag and drop operation, this View will
+                    // not receive events again until ACTION_DRAG_ENDED is sent.
+                    return false;
+
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    // Invalidate the view to force a redraw in the new tint
+                    v.invalidate();
+
+                    return true;
+
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    // Ignore the event
+                    return true;
+
+                case DragEvent.ACTION_DRAG_EXITED:
+                    v.invalidate();
+                    return true;
+
+                case DragEvent.ACTION_DROP:
+                    v.setVisibility(View.VISIBLE);
+                    trash.setVisibility(View.INVISIBLE);
+
+                    // View was dropped on itself
+                    if (event.getLocalState().equals(v)) {
+                        return false;
+                    }
+
+                    BasicBlockView draggedBlock = (BasicBlockView) event.getLocalState();
+
+                    // View was dropped on trash
+                    if (v.getTag() == "TRASH") {
+                        if (draggedBlock.getBlockParent() != null) {
+                            BasicBlockView parent = draggedBlock.getBlockParent();
+                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
+                        } else {
+                            rb.getBlockList().remove(draggedBlock.getBlockRef());
+                        }
+                        ((ViewGroup) draggedBlock.getParent()).removeView(draggedBlock);
+                        Toast.makeText(v.getContext(), "Block was successfully deleted.", Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+
+                    // A block was dropped on another block
+                    // Resolve which block was target
+                    BasicBlockView targetBlock = (BasicBlockView) v;
+
+                    if (targetBlock.getBlockRef() instanceof ComboBlock) {
+                        rb.getBlockList().remove(draggedBlock.getBlockRef());
+                        ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
+
+                        if (draggedBlock.getBlockParent() != null) {
+                            BasicBlockView parent = draggedBlock.getBlockParent();
+
+                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
+
+                            draggedBlock.setBlockParent(null);
+
+                            RobotEditorActivity.this.adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
+
+                            RobotEditorActivity.this.moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        }
+
+                        draggedBlock.setBlockParent(targetBlock);
+
+                        int targetBlockChildrenCount = ((ComboBlock) targetBlock.getBlockRef()).getBlocks().size();
+                        int overlap = ((int) targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension) - window_width;
+                        int blocksOverlapping = (int) Math.ceil((double) overlap / defaultBlockDimension);
+                        int blocksPerRow = targetBlockChildrenCount - blocksOverlapping;
+                        int rows = (int) Math.ceil((double) targetBlockChildrenCount / blocksPerRow);
+
+                        // Position dragged block on top of target block
+                        if (targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension > window_width) {
+                            // Block would be put over the screen border
+                            if (targetBlockChildrenCount % blocksPerRow == 0) {
+                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (blocksPerRow));
+                            } else {
+                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (targetBlockChildrenCount % blocksPerRow));
+                            }
+                            draggedBlock.setY(targetBlock.getY() + 12 + defaultBlockDimension * (rows - 1));
+                            draggedBlock.bringToFront();
+                            RobotEditorActivity.this.moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        } else {
+                            draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount);
+                            draggedBlock.setY(targetBlock.getY() + 12);
+                            draggedBlock.bringToFront();
+                            RobotEditorActivity.this.moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        }
+                        // Extend target block to create space for dropped block
+                        RobotEditorActivity.this.adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
+
+                    } else {
+                        Toast.makeText(v.getContext(), "This block is not a ComboBlock!", Toast.LENGTH_LONG).show();
+                    }
+
+                    // Invalidates the view to force a redraw
+                    v.invalidate();
+
+                    // Returns true. DragEvent.getResult() will return true.
+                    return true;
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    trash.setVisibility(View.INVISIBLE);
+
+                    // View was dropped on canvas
+                    // Check whether dragged view equals any of the blocks
+                    if (event.getLocalState().equals(v)) {
+                        float x = event.getX();
+                        float y = event.getY();
+
+                        // Detect bounds
+                        if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
+                            v.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+
+                        draggedBlock = (BasicBlockView) v;
+
+                        draggedBlock.setX(x - defaultBlockDimension / 2);
+                        draggedBlock.setY(y - top_bar.getHeight() - defaultBlockDimension / 2);
+
+                        RobotEditorActivity.this.moveChildren(draggedBlock, x, y);
+
+                        if (draggedBlock.getBlockParent() != null) {
+                            BasicBlockView parent = draggedBlock.getBlockParent();
+
+                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
+                            rb.getBlockList().add(draggedBlock.getBlockRef());
+
+                            draggedBlock.setBlockParent(null);
+
+                            RobotEditorActivity.this.adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
+
+                            RobotEditorActivity.this.moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        }
+
+                        v.setVisibility(View.VISIBLE);
+                        // Invalidates the view to force a redraw
+                        v.invalidate();
+                        /*
+                        Debug purposes
+                        for (BasicBlock basicBlock : blockList) {
+                            System.out.println(basicBlock.getBlockRef() + " " + basicBlock.getX() + " " + basicBlock.getY() + "visible: " + basicBlock.getVisibility());
+                        }
+                        */
+                    }
+                    return true;
+
+                // An unknown action type was received.
+                default:
+                    Log.e("DragDrop", "Unknown action type received by OnDragListener.");
+                    break;
+            }
+            return false;
+        }
     }
 
     public void saveRobot(View view) {
@@ -230,164 +417,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         bb.setTag(param);
         AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(defaultBlockDimension, defaultBlockDimension));
         bb.setLayoutParams(layoutParams.get());
-        bb.setOnDragListener((v, event) -> {
-
-            final int action = event.getAction();
-            // System.out.println(action);
-
-            switch (action) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    // Determines if this View can accept the dragged data
-                    if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-
-                        if (event.getLocalState().equals(v)) {
-                            v.setVisibility(View.INVISIBLE);
-                        }
-
-                        // Invalidate the view to force a redraw in the new tint
-                        v.invalidate();
-
-                        // returns true to indicate that the View can accept the dragged data.
-                        return true;
-                    }
-
-                    // Returns false. During the current drag and drop operation, this View will
-                    // not receive events again until ACTION_DRAG_ENDED is sent.
-                    return false;
-
-                case DragEvent.ACTION_DRAG_ENTERED:
-                    // Invalidate the view to force a redraw in the new tint
-                    v.invalidate();
-
-                    return true;
-
-                case DragEvent.ACTION_DRAG_LOCATION:
-                    // Ignore the event
-                    return true;
-
-                case DragEvent.ACTION_DRAG_EXITED:
-                    v.invalidate();
-                    return true;
-
-                case DragEvent.ACTION_DROP:
-                    v.setVisibility(View.VISIBLE);
-
-                    // View was dropped on itself
-                    if (event.getLocalState().equals(v)) {
-                        return false;
-                    }
-
-                    // A block was dropped on another block
-                    // Resolve which block was target and which was dragged onto target
-                    BasicBlockView targetBlock = (BasicBlockView) v;
-                    BasicBlockView draggedBlock = (BasicBlockView) event.getLocalState();
-
-                    if (targetBlock.getBlockRef() instanceof ComboBlock) {
-                        rb.getBlockList().remove(draggedBlock.getBlockRef());
-                        ((ComboBlock) targetBlock.getBlockRef()).getBlocks().add(draggedBlock.getBlockRef());
-
-                        if (draggedBlock.getBlockParent() != null) {
-                            BasicBlockView parent = draggedBlock.getBlockParent();
-
-                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
-
-                            draggedBlock.setBlockParent(null);
-
-                            adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
-
-                            moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
-                        }
-
-                        draggedBlock.setBlockParent(targetBlock);
-
-                        int targetBlockChildrenCount = ((ComboBlock) targetBlock.getBlockRef()).getBlocks().size();
-                        int overlap = ((int) targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension) - window_width;
-                        int blocksOverlapping = (int) Math.ceil((double) overlap / defaultBlockDimension);
-                        int blocksPerRow = targetBlockChildrenCount - blocksOverlapping;
-                        int rows = (int) Math.ceil((double) targetBlockChildrenCount / blocksPerRow);
-
-                        // Position dragged block on top of target block
-                        if (targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension > window_width) {
-                            // Block would be put over the screen border
-                            if (targetBlockChildrenCount % blocksPerRow == 0) {
-                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (blocksPerRow));
-                            } else {
-                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (targetBlockChildrenCount % blocksPerRow));
-                            }
-                            draggedBlock.setY(targetBlock.getY() + 12 + defaultBlockDimension * (rows - 1));
-                            draggedBlock.bringToFront();
-                            moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
-                        } else {
-                            draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount);
-                            draggedBlock.setY(targetBlock.getY() + 12);
-                            draggedBlock.bringToFront();
-                            moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
-                        }
-                        // Extend target block to create space for dropped block
-                        adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
-
-                    } else {
-                        Toast.makeText(v.getContext(), "This block is not a ComboBlock!", Toast.LENGTH_LONG).show();
-                    }
-
-                    // Invalidates the view to force a redraw
-                    v.invalidate();
-
-                    // Returns true. DragEvent.getResult() will return true.
-                    return true;
-
-                case DragEvent.ACTION_DRAG_ENDED:
-                    // View was dropped on canvas
-                    // Check whether dragged view equals any of the blocks
-                    if (event.getLocalState().equals(v)) {
-                        float x = event.getX();
-                        float y = event.getY();
-
-                        // Detect bounds
-                        if (y < top_bar.getHeight() || y > window_height - bottom_bar.getHeight()) {
-                            v.setVisibility(View.VISIBLE);
-                            return false;
-                        }
-
-                        draggedBlock = (BasicBlockView) v;
-
-                        draggedBlock.setX(x - defaultBlockDimension / 2);
-                        draggedBlock.setY(y - top_bar.getHeight() - defaultBlockDimension / 2);
-
-                        moveChildren(draggedBlock, x, y);
-
-                        if (draggedBlock.getBlockParent() != null) {
-                            BasicBlockView parent = draggedBlock.getBlockParent();
-
-                            ((ComboBlock) parent.getBlockRef()).getBlocks().remove(draggedBlock.getBlockRef());
-                            rb.getBlockList().add(draggedBlock.getBlockRef());
-
-                            draggedBlock.setBlockParent(null);
-
-                            adaptBlockDimensions(parent, ((ComboBlock) parent.getBlockRef()).getBlocks().size());
-
-                            moveChildren(parent, parent.getX() + defaultBlockDimension / 2, parent.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
-                        }
-
-                        v.setVisibility(View.VISIBLE);
-                        // Invalidates the view to force a redraw
-                        v.invalidate();
-                        /*
-                        Debug purposes
-                        for (BasicBlock basicBlock : blockList) {
-                            System.out.println(basicBlock.getBlockRef() + " " + basicBlock.getX() + " " + basicBlock.getY() + "visible: " + basicBlock.getVisibility());
-                        }
-                        */
-                    }
-                    return true;
-
-                // An unknown action type was received.
-                default:
-                    Log.e("DragDrop", "Unknown action type received by OnDragListener.");
-                    break;
-            }
-            return false;
-        });
+        bb.setOnDragListener(new CustomDragListener());
         bb.setOnLongClickListener(v -> {
             ClipData.Item item1 = new ClipData.Item((CharSequence) v.getTag());
 

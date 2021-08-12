@@ -52,6 +52,14 @@
         android:layout_marginTop="100sp">
 
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="60dp"
+            android:layout_marginEnd="10dp"
+            app:srcCompat="@drawable/ic_trash_solid" />
     </FrameLayout>
 
     <LinearLayout

@@ -62,6 +62,7 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     LinearLayout bottom_bar;
 
     int window_height;
+    int window_width;
 
     List<BasicBlockView> blockList;
 
@@ -110,7 +111,9 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
             actionBar.hide();
         }
 
+        window_width = getResources().getDisplayMetrics().widthPixels;
         window_height = getResources().getDisplayMetrics().heightPixels;
+
         robotNameEditText = findViewById(R.id.robot_name_edit);
         canvas = findViewById(R.id.edit_canvas);
         top_bar = findViewById(R.id.top_bar);
@@ -297,15 +300,32 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
                         draggedBlock.setBlockParent(targetBlock);
 
-                        // Extend target block to create space for dropped block
                         int targetBlockChildrenCount = ((ComboBlock) targetBlock.getBlockRef()).getBlocks().size();
-                        adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
+                        int overlap = ((int) targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension) - window_width;
+                        int blocksOverlapping = (int) Math.ceil((double) overlap / defaultBlockDimension);
+                        int blocksPerRow = targetBlockChildrenCount - blocksOverlapping;
+                        int rows = (int) Math.ceil((double) targetBlockChildrenCount / blocksPerRow);
 
                         // Position dragged block on top of target block
-                        draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount);
-                        draggedBlock.setY(targetBlock.getY() + 12);
-                        draggedBlock.bringToFront();
-                        moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        if (targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension > window_width) {
+                            // Block would be put over the screen border
+                            if (targetBlockChildrenCount % blocksPerRow == 0) {
+                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (blocksPerRow));
+                            } else {
+                                draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * (targetBlockChildrenCount % blocksPerRow));
+                            }
+                            draggedBlock.setY(targetBlock.getY() + 12 + defaultBlockDimension * (rows - 1));
+                            draggedBlock.bringToFront();
+                            moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        } else {
+                            draggedBlock.setX(targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount);
+                            draggedBlock.setY(targetBlock.getY() + 12);
+                            draggedBlock.bringToFront();
+                            moveChildren(draggedBlock, draggedBlock.getX() + defaultBlockDimension / 2, draggedBlock.getY() + top_bar.getHeight() + defaultBlockDimension / 2);
+                        }
+                        // Extend target block to create space for dropped block
+                        adaptBlockDimensions(targetBlock, targetBlockChildrenCount);
+
                     } else {
                         Toast.makeText(v.getContext(), "This block is not a ComboBlock!", Toast.LENGTH_LONG).show();
                     }
@@ -387,9 +407,17 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
     }
 
     private void adaptBlockDimensions(BasicBlockView targetBlock, int targetBlockChildrenCount) {
+        int overlap = ((int) targetBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension) - window_width;
+        int blocksOverlapping = (int) Math.ceil((double) overlap / defaultBlockDimension);
+        int blocksPerRow = targetBlockChildrenCount - blocksOverlapping;
+        int rows = (int) Math.ceil((double) targetBlockChildrenCount / blocksPerRow);
         AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(defaultBlockDimension, defaultBlockDimension));
         if (targetBlockChildrenCount != 0) {
-            layoutParams.set(new FrameLayout.LayoutParams(defaultBlockDimension + 24 + targetBlockChildrenCount * defaultBlockDimension, defaultBlockDimension + 24)); // normal dimensions + 24 each, add 128 for another block
+            if (overlap > 0) {
+                layoutParams.set(new FrameLayout.LayoutParams(defaultBlockDimension + 24 + blocksPerRow * defaultBlockDimension, defaultBlockDimension + 24 + (rows - 1) * defaultBlockDimension));
+            } else {
+                layoutParams.set(new FrameLayout.LayoutParams(defaultBlockDimension + 24 + targetBlockChildrenCount * defaultBlockDimension, defaultBlockDimension + 24 + (rows - 1) * defaultBlockDimension)); // normal dimensions + 24 each, add 128 for another block
+            }
             targetBlock.setLayoutParams(layoutParams.get());
             targetBlock.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             targetBlock.setPadding(defaultBlockDimension / 3, 0, 0, 0);
@@ -402,6 +430,10 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
     private void moveChildren(BasicBlockView draggedBlock, float x, float y) {
         if (draggedBlock.getBlockRef() instanceof ComboBlock) {
+            int targetBlockChildrenCount = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size();
+            int overlap = ((int) draggedBlock.getX() + defaultBlockDimension * targetBlockChildrenCount + defaultBlockDimension) - window_width;
+            int blocksOverlapping = (int) Math.ceil((double) overlap / defaultBlockDimension);
+            int blocksPerRow = targetBlockChildrenCount - blocksOverlapping;
             if (((ComboBlock) draggedBlock.getBlockRef()).getBlocks().size() > 0) {
                 Set<Block> children = ((ComboBlock) draggedBlock.getBlockRef()).getBlocks();
                 int counter = 0;
@@ -409,8 +441,20 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                     for (BasicBlockView basicBlockView : blockList) {
                         if (basicBlockView.getBlockRef().equals(child)) {
                             counter++;
-                            basicBlockView.setX(x - defaultBlockDimension / 2 + defaultBlockDimension * counter);
-                            basicBlockView.setY(y - top_bar.getHeight() - defaultBlockDimension / 2 + 12);
+                            if (overlap > 0 && blocksPerRow > 0) {
+                                System.out.println(blocksPerRow);
+                                int row = (int) Math.ceil((double) counter / blocksPerRow);
+
+                                if (counter % blocksPerRow == 0) {
+                                    draggedBlock.setX(x - defaultBlockDimension / 2 + defaultBlockDimension * (blocksPerRow));
+                                } else {
+                                    draggedBlock.setX(x - defaultBlockDimension / 2 + defaultBlockDimension * (counter % blocksPerRow));
+                                }
+                                draggedBlock.setY(y - top_bar.getHeight() - defaultBlockDimension / 2 + 12 + defaultBlockDimension * (row - 1));
+                            } else {
+                                basicBlockView.setX(x - defaultBlockDimension / 2 + defaultBlockDimension * counter);
+                                basicBlockView.setY(y - top_bar.getHeight() - defaultBlockDimension / 2 + 12);
+                            }
                             basicBlockView.bringToFront();
                             moveChildren(basicBlockView, x + defaultBlockDimension * counter, y + 12);
                         }

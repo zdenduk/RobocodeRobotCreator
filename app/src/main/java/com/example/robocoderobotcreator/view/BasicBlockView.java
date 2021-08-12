@@ -39,6 +39,7 @@ public class BasicBlockView extends LinearLayout {
     private BasicBlockView blockParent;
     private EditText parameterEditText;
 
+
     public BasicBlockView(@NonNull Context context, Block blockRef) {
         super(context);
         this.blockRef = blockRef;

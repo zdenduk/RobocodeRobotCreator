@@ -4,14 +4,6 @@
     android:layout_height="wrap_content">
 
     <item
-        android:id="@+id/else_item"
-        android:title="Else" />
-
-    <item
-        android:id="@+id/if_item"
-        android:title="If" />
-
-    <item
         android:id="@+id/onhitwall_item"
         android:title="OnHitWall" />
 

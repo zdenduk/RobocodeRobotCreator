@@ -361,17 +361,12 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         final PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
 
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+        System.out.println(Translator.INSTANCE.translateRobotBlueprint(rb));
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.else_item:
-                canvas.addView(createBasicBlock("ELSE", new ElseBlock()));
-                return true;
-            case R.id.if_item:
-                canvas.addView(createBasicBlock("IF", new IfBlock()));
-                return true;
             case R.id.onhitwall_item:
                 canvas.addView(createBasicBlock("ONHITWALL", new OnHitWall()));
                 return true;

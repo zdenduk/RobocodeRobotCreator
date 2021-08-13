@@ -2,30 +2,41 @@ package com.example.robocoderobotcreator.support;
 
 import android.content.Context;
 
+import com.example.robocoderobotcreator.model.Block;
 import com.example.robocoderobotcreator.model.RobotBlueprint;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public enum RobotDataManager {
     INSTANCE;
 
-    Gson gson;
+    ObjectMapper objectMapper;
     List<RobotBlueprint> robotData;
 
-    private RobotDataManager() {
-        gson = new Gson();
+    RobotDataManager() {
+        objectMapper = JsonMapper.builder()
+                .activateDefaultTyping(new LaissezFaireSubTypeValidator(), ObjectMapper.DefaultTyping.EVERYTHING)
+                .build();
     }
 
     public void writeRobotFileOnInternalStorage(Context mcoContext, RobotBlueprint rb) {
-
-        String sBody = gson.toJson(rb);
+        String sBody = null;
+        try {
+            sBody = objectMapper.writeValueAsString(rb);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         File dir = new File(mcoContext.getFilesDir(), "robots");
         if (!dir.exists()) {
@@ -50,13 +61,13 @@ public enum RobotDataManager {
         File[] files = dir.listFiles();
         if (files != null) {
             for (File file : files) {
+                RobotBlueprint rb = null;
                 try {
-                    JsonReader reader = new JsonReader(new FileReader(file));
-                    RobotBlueprint rb = gson.fromJson(reader, RobotBlueprint.class);
-                    ret.add(rb);
-                } catch (FileNotFoundException e) {
+                    rb = objectMapper.readValue(file, RobotBlueprint.class);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+                ret.add(rb);
             }
         }
 

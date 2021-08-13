@@ -65,7 +65,7 @@ public class BasicBlockView extends LinearLayout {
             this.setPadding(0, 32, 0, 0);
             EditText editText = new EditText(context);
             editText.setTextColor(Color.WHITE);
-            editText.setMaxLines(1);
+            editText.setMaxLines(1);    
             this.addView(editText);
             parameterEditText = editText;
         }

@@ -1,0 +1,65 @@
+com/example/robocoderobotcreator/BuildConfig.java
+ com.example.robocoderobotcreator.BuildConfig
+com/example/robocoderobotcreator/model/RobotBlueprint.java
+ com.example.robocoderobotcreator.model.RobotBlueprint
+com/example/robocoderobotcreator/model/ComboBlock.java
+ com.example.robocoderobotcreator.model.ComboBlock
+com/example/robocoderobotcreator/model/events/OnScannedRobot.java
+ com.example.robocoderobotcreator.model.events.OnScannedRobot
+com/example/robocoderobotcreator/model/radar/SetAdjustRadarForRobotTurn.java
+ com.example.robocoderobotcreator.model.radar.SetAdjustRadarForRobotTurn
+com/example/robocoderobotcreator/view/adapters/RobotsRecyclerAdapter.java
+ com.example.robocoderobotcreator.view.adapters.RobotsRecyclerAdapter
+ com.example.robocoderobotcreator.view.adapters.RobotsRecyclerAdapter$OnRobotListener
+ com.example.robocoderobotcreator.view.adapters.RobotsRecyclerAdapter$ViewHolder
+com/example/robocoderobotcreator/model/weapons/TurnGunLeft.java
+ com.example.robocoderobotcreator.model.weapons.TurnGunLeft
+com/example/robocoderobotcreator/model/radar/TurnRadarLeft.java
+ com.example.robocoderobotcreator.model.radar.TurnRadarLeft
+com/example/robocoderobotcreator/model/events/ElseBlock.java
+ com.example.robocoderobotcreator.model.events.ElseBlock
+com/example/robocoderobotcreator/model/radar/SetAdjustRadarForGunTurn.java
+ com.example.robocoderobotcreator.model.radar.SetAdjustRadarForGunTurn
+com/example/robocoderobotcreator/model/weapons/TurnGunRight.java
+ com.example.robocoderobotcreator.model.weapons.TurnGunRight
+com/example/robocoderobotcreator/model/radar/TurnRadarRight.java
+ com.example.robocoderobotcreator.model.radar.TurnRadarRight
+com/example/robocoderobotcreator/model/weapons/Fire.java
+ com.example.robocoderobotcreator.model.weapons.Fire
+com/example/robocoderobotcreator/view/BasicBlockView.java
+ com.example.robocoderobotcreator.view.BasicBlockView
+ com.example.robocoderobotcreator.view.BasicBlockView$1
+com/example/robocoderobotcreator/model/Block.java
+ com.example.robocoderobotcreator.model.Block
+com/example/robocoderobotcreator/model/Category.java
+ com.example.robocoderobotcreator.model.Category
+com/example/robocoderobotcreator/model/movement/Ahead.java
+ com.example.robocoderobotcreator.model.movement.Ahead
+com/example/robocoderobotcreator/model/events/OnHitWall.java
+ com.example.robocoderobotcreator.model.events.OnHitWall
+com/example/robocoderobotcreator/model/events/IfBlock.java
+ com.example.robocoderobotcreator.model.events.IfBlock
+com/example/robocoderobotcreator/model/Translator.java
+ com.example.robocoderobotcreator.model.Translator
+com/example/robocoderobotcreator/model/ParametrizedBlock.java
+ com.example.robocoderobotcreator.model.ParametrizedBlock
+com/example/robocoderobotcreator/model/movement/Back.java
+ com.example.robocoderobotcreator.model.movement.Back
+com/example/robocoderobotcreator/model/movement/TurnLeft.java
+ com.example.robocoderobotcreator.model.movement.TurnLeft
+com/example/robocoderobotcreator/model/movement/TurnRight.java
+ com.example.robocoderobotcreator.model.movement.TurnRight
+com/example/robocoderobotcreator/model/events/Run.java
+ com.example.robocoderobotcreator.model.events.Run
+com/example/robocoderobotcreator/model/events/WhileBlock.java
+ com.example.robocoderobotcreator.model.events.WhileBlock
+com/example/robocoderobotcreator/support/RobotDataManager.java
+ com.example.robocoderobotcreator.support.RobotDataManager
+com/example/robocoderobotcreator/MainActivity.java
+ com.example.robocoderobotcreator.MainActivity
+com/example/robocoderobotcreator/RobotEditorActivity.java
+ com.example.robocoderobotcreator.RobotEditorActivity
+ com.example.robocoderobotcreator.RobotEditorActivity$1
+ com.example.robocoderobotcreator.RobotEditorActivity$CustomDragListener
+com/example/robocoderobotcreator/RobotEditorInventoryActivity.java
+ com.example.robocoderobotcreator.RobotEditorInventoryActivity

@@ -1,5 +1,14 @@
 package com.example.robocoderobotcreator.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum Category {
-    EVENTS, MOVEMENT, WEAPONS, RADAR
+    @JsonProperty("EVENTS")
+    EVENTS,
+    @JsonProperty("MOVEMENT")
+    MOVEMENT,
+    @JsonProperty("WEAPONS")
+    WEAPONS,
+    @JsonProperty("RADAR")
+    RADAR
 }

@@ -124,16 +124,44 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
 
         defaultBlockDimension = 192;
 
+        blockList = new ArrayList<>();
+
         Intent intent = getIntent();
         int pos = intent.getIntExtra("position", -1);
-
-        //  rb = RobotDataManager.INSTANCE.getRobotData().get(pos);
-        rb = new RobotBlueprint();
-        blockList = new ArrayList<>();
+        if (pos != -1) {
+            rb = RobotDataManager.INSTANCE.getRobotData().get(pos);
+            robotNameEditText.setText(rb.getName());
+            for (Block block : rb.getBlockList()) {
+                populateViewWithChildren(block);
+            }
+        } else {
+            rb = new RobotBlueprint();
+        }
 
         trash = (ImageView) findViewById(R.id.trash);
         trash.setTag("TRASH");
         trash.setOnDragListener(new CustomDragListener());
+    }
+
+    private void populateViewWithChildren(Block block) {
+        if (block instanceof ComboBlock) {
+            BasicBlockView bb = createBasicBlock(block.getClass().toString(), block, true);
+            canvas.addView(bb);
+            adaptBlockDimensions(bb, ((ComboBlock) block).getBlocks().size());
+            if (((ComboBlock) block).getBlocks().size() > 0) {
+                for (Block block1 : ((ComboBlock) block).getBlocks()) {
+                    populateViewWithChildren(block1);
+                }
+            }
+            moveChildren(bb, bb.getX() + defaultBlockDimension / 2, bb.getY() + defaultBlockDimension / 2);
+        } else if (block instanceof ParametrizedBlock) {
+            BasicBlockView bb = createBasicBlock(block.getClass().toString(), block, true);
+            bb.getParameterEditText().setText(((ParametrizedBlock) block).getParameter());
+            canvas.addView(bb);
+        } else {
+            canvas.addView(createBasicBlock(block.getClass().toString(), block, true));
+        }
+
     }
 
     private class CustomDragListener implements View.OnDragListener {
@@ -361,63 +389,62 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         final PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
 
         popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-        System.out.println(Translator.INSTANCE.translateRobotBlueprint(rb));
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.onhitwall_item:
-                canvas.addView(createBasicBlock("ONHITWALL", new OnHitWall()));
+                canvas.addView(createBasicBlock("ONHITWALL", new OnHitWall(), false));
                 return true;
             case R.id.onscannedrobot_item:
-                canvas.addView(createBasicBlock("ONSCANNEDROBOT", new OnScannedRobot()));
+                canvas.addView(createBasicBlock("ONSCANNEDROBOT", new OnScannedRobot(), false));
                 return true;
             case R.id.run_item:
-                canvas.addView(createBasicBlock("RUN", new Run()));
+                canvas.addView(createBasicBlock("RUN", new Run(), false));
                 return true;
             case R.id.while_item:
-                canvas.addView(createBasicBlock("WHILE", new WhileBlock()));
+                canvas.addView(createBasicBlock("WHILE", new WhileBlock(), false));
                 return true;
             case R.id.fire_item:
-                canvas.addView(createBasicBlock("FIRE", new Fire()));
+                canvas.addView(createBasicBlock("FIRE", new Fire(), false));
                 return true;
             case R.id.turngunleft_item:
-                canvas.addView(createBasicBlock("TURNGUNLEFT", new TurnGunLeft()));
+                canvas.addView(createBasicBlock("TURNGUNLEFT", new TurnGunLeft(), false));
                 return true;
             case R.id.turngunright_item:
-                canvas.addView(createBasicBlock("TURNGUNRIGHT", new TurnGunRight()));
+                canvas.addView(createBasicBlock("TURNGUNRIGHT", new TurnGunRight(), false));
                 return true;
             case R.id.ahead_item:
-                canvas.addView(createBasicBlock("AHEAD", new Ahead()));
+                canvas.addView(createBasicBlock("AHEAD", new Ahead(), false));
                 return true;
             case R.id.back_item:
-                canvas.addView(createBasicBlock("BACK", new Back()));
+                canvas.addView(createBasicBlock("BACK", new Back(), false));
                 return true;
             case R.id.turnleft_item:
-                canvas.addView(createBasicBlock("TURNLEFT", new TurnLeft()));
+                canvas.addView(createBasicBlock("TURNLEFT", new TurnLeft(), false));
                 return true;
             case R.id.turnright_item:
-                canvas.addView(createBasicBlock("TURNRIGHT", new TurnRight()));
+                canvas.addView(createBasicBlock("TURNRIGHT", new TurnRight(), false));
                 return true;
             case R.id.turnradarleft_item:
-                canvas.addView(createBasicBlock("TURNRADARLEFT", new TurnRadarLeft()));
+                canvas.addView(createBasicBlock("TURNRADARLEFT", new TurnRadarLeft(), false));
                 return true;
             case R.id.turnradarright_item:
-                canvas.addView(createBasicBlock("TURNRADARRIGHT", new TurnRadarRight()));
+                canvas.addView(createBasicBlock("TURNRADARRIGHT", new TurnRadarRight(), false));
                 return true;
             case R.id.setadjustradarforgunturn_item:
-                canvas.addView(createBasicBlock("SETADJUSTRADARFORGUNTURN", new SetAdjustRadarForGunTurn()));
+                canvas.addView(createBasicBlock("SETADJUSTRADARFORGUNTURN", new SetAdjustRadarForGunTurn(), false));
                 return true;
             case R.id.setadjustradarforrobotturn_item:
-                canvas.addView(createBasicBlock("SETADJUSTRADARFORROBOTTURN", new SetAdjustRadarForRobotTurn()));
+                canvas.addView(createBasicBlock("SETADJUSTRADARFORROBOTTURN", new SetAdjustRadarForRobotTurn(), false));
                 return true;
             default:
                 return false;
         }
     }
 
-    private BasicBlockView createBasicBlock(String param, Block type) {
+    private BasicBlockView createBasicBlock(String param, Block type, boolean loading) {
         // Create BasicBlock
         BasicBlockView bb = new BasicBlockView(getApplicationContext(), type);
 
@@ -425,7 +452,8 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
         blockList.add(bb);
 
         // Add block type to robot blueprint
-        rb.getBlockList().add(bb.getBlockRef());
+        if (!loading)
+            rb.getBlockList().add(bb.getBlockRef());
 
         bb.setTag(param);
         AtomicReference<FrameLayout.LayoutParams> layoutParams = new AtomicReference<>(new FrameLayout.LayoutParams(defaultBlockDimension, defaultBlockDimension));
@@ -485,7 +513,6 @@ public class RobotEditorActivity extends AppCompatActivity implements PopupMenu.
                         if (basicBlockView.getBlockRef().equals(child)) {
                             counter++;
                             if (overlap > 0 && blocksPerRow > 0) {
-                                System.out.println(blocksPerRow);
                                 int row = (int) Math.ceil((double) counter / blocksPerRow);
 
                                 if (counter % blocksPerRow == 0) {

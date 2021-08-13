@@ -33,7 +33,7 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //RobotDataManager.INSTANCE.readAllRobotsFilesFromInternalStorage(getApplicationContext());
+        RobotDataManager.INSTANCE.readAllRobotsFilesFromInternalStorage(getApplicationContext());
 
         setContentView(R.layout.activity_robot_editor_inventory);
         mRecyclerView = findViewById(R.id.roboteditorview);
@@ -48,18 +48,7 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
     }
 
     private void retrieveRobots() {
-        //TODO
-
-        //mRobots = RobotDataManager.INSTANCE.getRobotData();
-
-        List<RobotBlueprint> robots = new ArrayList<>();
-
-        RobotBlueprint rb = createDefaultRobot();
-        robots.add(rb);
-        RobotBlueprint rb2 = createDefaultRobot();
-        robots.add(rb2);
-
-        mRobots.addAll(robots);
+        mRobots.addAll(RobotDataManager.INSTANCE.getRobotData());
 
         mRobotRecycleAdapter.notifyDataSetChanged();
     }
@@ -102,18 +91,13 @@ public class RobotEditorInventoryActivity extends AppCompatActivity implements R
 
     @Override
     public void onRobotClick(int position) {
-        //TODO
-        System.out.println(position);
-        System.out.println(mRobots.get(position).getName());
-
         Intent intent = new Intent(this, RobotEditorActivity.class);
-        intent.putExtra("robot", position);
+        intent.putExtra("position", position);
         startActivity(intent);
     }
 
     public void createNewRobot(View view) {
         Intent intent = new Intent(this, RobotEditorActivity.class);
-        intent.putExtra("robot", -1);
         startActivity(intent);
     }
 }
